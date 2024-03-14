@@ -6,13 +6,14 @@ import relativeTime from "dayjs/plugin/relativeTime";
 
 import type { RouterOutputs } from "~/trpc/shared";
 import { api } from "~/trpc/react";
+import { LoadingPage } from "./Loader";
 
 dayjs.extend(relativeTime);
 
-export function Posts() {
+export function Feed() {
   const { data, isLoading } = api.post.getAll.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <LoadingPage />;
   if (!data) return <div>Something went wrong</div>;
 
   return (

@@ -1,10 +1,8 @@
 import { SignInButton, currentUser } from "@clerk/nextjs";
 import { unstable_noStore as noStore } from "next/cache";
-import Link from "next/link";
 
 import { CreatePost } from "~/app/_components/create-post";
-import { api } from "~/trpc/server";
-import { Posts } from "./_components/Posts";
+import { Feed } from "./_components/Posts";
 
 export default async function Home() {
   noStore();
@@ -22,7 +20,7 @@ export default async function Home() {
           {!!user && <CreatePost />}
         </div>
 
-        <Posts />
+        <Feed />
       </div>
     </main>
   );

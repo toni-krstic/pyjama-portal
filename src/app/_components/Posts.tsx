@@ -7,6 +7,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import type { RouterOutputs } from "~/trpc/shared";
 import { api } from "~/trpc/react";
 import { LoadingPage } from "./Loader";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
@@ -39,10 +40,14 @@ const PostView = (props: PostWithUser) => {
       />
       <div className="flex flex-col">
         <div className="flex gap-1 text-slate-300">
-          <span>{`@${author.username}`}</span>
+          <Link href={`/@${author.username}`}>
+            <span>{`@${author.username}`}</span>
+          </Link>
           <span className="font-thin">{`· ${dayjs(post.createdAt).fromNow()}`}</span>
         </div>
-        <span className="">{post.content}</span>
+        <Link href={`/post/${post.id}`}>
+          <span className="">{post.content}</span>
+        </Link>
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ export const posts = createTable(
   "post",
   {
     id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
+    content: varchar("content", { length: 256 }),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -30,6 +30,6 @@ export const posts = createTable(
     authorId: varchar("authorId", { length: 256 }),
   },
   (example) => ({
-    nameIndex: index("name_idx").on(example.name),
+    authorIndex: index("author_idx").on(example.authorId),
   }),
 );

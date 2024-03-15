@@ -19,15 +19,6 @@ const filterUserForClient = (user: User) => {
 };
 
 export const postRouter = createTRPCRouter({
-  create: privateProcedure
-    .input(z.object({ name: z.string().min(1), author: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(posts).values({
-        name: input.name,
-        authorId: input.author,
-      });
-    }),
-
   getAll: publicProcedure.query(async ({ ctx }) => {
     const posts = await ctx.db.query.posts.findMany({
       limit: 100,
@@ -58,6 +49,16 @@ export const postRouter = createTRPCRouter({
       };
     });
   }),
+
+  create: privateProcedure
+    .input(z.object({ content: z.string().min(1).max(256) }))
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.currentUser.userId;
+      await ctx.db.insert(posts).values({
+        content: input.content,
+        authorId,
+      });
+    }),
 
   getLatest: publicProcedure.query(({ ctx }) => {
     return ctx.db.query.posts.findFirst({

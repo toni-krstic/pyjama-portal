@@ -1,24 +1,22 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { useToast } from "./ui/use-toast";
 
 import { api } from "~/trpc/react";
-import { LoadingPage } from "./Loader";
+import { LoadingPage, LoadingSpinner } from "./Loader";
 
 export function CreatePost() {
-  const router = useRouter();
   const [content, setContent] = useState("");
   const { user, isLoaded } = useUser();
   const { toast } = useToast();
+  const utils = api.useUtils();
 
   const createPost = api.post.create.useMutation({
     onSuccess: () => {
       setContent("");
-      router.refresh();
+      utils.post.getAll.invalidate();
     },
     onError: (err) => {
       const errorMessage = err.data?.zodError?.fieldErrors.content;
@@ -42,12 +40,12 @@ export function CreatePost() {
   return (
     <>
       <div className="flex w-full gap-3">
-        <Image
-          src={user.imageUrl}
-          alt="Profile Image"
-          className="h-14 w-14 rounded-full"
-          height={56}
-          width={56}
+        <UserButton
+          appearance={{
+            elements: {
+              userButtonAvatarBox: "h-14 w-14",
+            },
+          }}
         />
         <form
           onSubmit={(e) => {
@@ -66,10 +64,10 @@ export function CreatePost() {
           />
           <button
             type="submit"
-            className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
+            className="bg-transparent"
             disabled={createPost.isLoading}
           >
-            {createPost.isLoading ? "Posting..." : "Post"}
+            {createPost.isLoading ? <LoadingSpinner /> : "Post"}
           </button>
         </form>
       </div>

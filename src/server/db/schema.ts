@@ -29,7 +29,7 @@ export const posts = createTable(
     updatedAt: timestamp("updatedAt"),
     authorId: varchar("authorId", { length: 256 }),
   },
-  (example) => ({
-    authorIndex: index("author_idx").on(example.authorId),
+  (post) => ({
+    authorIndex: index("author_idx").on(post.authorId),
   }),
 );

@@ -16,7 +16,7 @@ export function CreatePost() {
   const createPost = api.post.create.useMutation({
     onSuccess: () => {
       setContent("");
-      utils.post.getAll.invalidate();
+      void utils.post.getAll.invalidate();
     },
     onError: (err) => {
       const errorMessage = err.data?.zodError?.fieldErrors.content;

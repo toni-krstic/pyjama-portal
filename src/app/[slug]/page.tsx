@@ -1,5 +1,7 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import { api } from "~/trpc/server";
+import ProfileFeed from "../_components/ProfileFeed";
 
 type Props = {
   params: { slug: string };
@@ -26,9 +28,19 @@ export default async function ProfilePage({ params }: Props) {
   if (!data) return null;
   return (
     <>
-      <main className="flex h-screen justify-center">
-        <div>{data.username}</div>
-      </main>
+      <div className="relative h-48 bg-slate-600">
+        <Image
+          src={data.profilePicture}
+          alt={`@${data.username}'s profile picture`}
+          height={128}
+          width={128}
+          className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-4 border-black"
+        />
+      </div>
+      <div className="h-[64px]"></div>
+      <div className="p-4 text-2xl font-bold">{`@${data.username}`}</div>
+      <div className="w-full border-b border-slate-400"></div>
+      <ProfileFeed userId={data.id} />
     </>
   );
 }

@@ -1,9 +1,26 @@
-export default function SinglePostPage() {
-  return (
-    <>
-      <main className="flex h-screen justify-center">
-        <div>Single Post View</div>
-      </main>
-    </>
-  );
+import { Metadata } from "next";
+import { PostView } from "~/app/_components/PostView";
+import { api } from "~/trpc/server";
+
+type Props = {
+  params: { id: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const id = Number(params.id);
+
+  const [data] = await api.post.getById.query({ id });
+
+  return {
+    title: `${data?.post.content} - @${data?.author.username}`,
+  };
+}
+
+export default async function SinglePostPage({ params }: Props) {
+  const id = Number(params.id);
+  const [data] = await api.post.getById.query({ id });
+
+  if (!data) return null;
+
+  return <PostView {...data} />;
 }

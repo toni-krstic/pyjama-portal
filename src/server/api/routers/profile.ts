@@ -3,11 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { filterUserForClient } from "~/core/utils";
 
-import {
-  createTRPCRouter,
-  privateProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const profileRouter = createTRPCRouter({
   getUserByUsername: publicProcedure

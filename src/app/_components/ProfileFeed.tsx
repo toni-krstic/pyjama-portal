@@ -5,7 +5,7 @@ import { LoadingPage } from "./Loader";
 import { PostView } from "./PostView";
 
 export default function ProfileFeed(props: { userId: string }) {
-  const { data, isLoading } = api.post.getPostsByUserId.useQuery({
+  const { data, isLoading } = api.post.getByUserId.useQuery({
     userId: props.userId,
   });
 

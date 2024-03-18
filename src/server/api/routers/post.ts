@@ -47,17 +47,19 @@ export const postRouter = createTRPCRouter({
     return addUsersDataToPosts(posts);
   }),
 
-  create: privateProcedure
-    .input(z.object({ content: z.string().min(1).max(256) }))
-    .mutation(async ({ ctx, input }) => {
-      const authorId = ctx.currentUser.userId;
-      await ctx.db.insert(posts).values({
-        content: input.content,
-        authorId,
-      });
+  getById: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(({ ctx, input }) => {
+      return ctx.db.query.posts
+        .findMany({
+          where: eq(posts.id, input.id),
+          limit: 100,
+          orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+        })
+        .then(addUsersDataToPosts);
     }),
 
-  getPostsByUserId: publicProcedure
+  getByUserId: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.db.query.posts
@@ -67,5 +69,15 @@ export const postRouter = createTRPCRouter({
           orderBy: (posts, { desc }) => [desc(posts.createdAt)],
         })
         .then(addUsersDataToPosts);
+    }),
+
+  create: privateProcedure
+    .input(z.object({ content: z.string().min(1).max(256) }))
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.currentUser.userId;
+      await ctx.db.insert(posts).values({
+        content: input.content,
+        authorId,
+      });
     }),
 });

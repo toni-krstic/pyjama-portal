@@ -10,7 +10,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className="border-b border-slate-400 p-4 ">
+      <div className="my-2">
         {!user && (
           <div className="flex justify-center">
             <SignInButton />

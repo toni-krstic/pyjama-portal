@@ -13,7 +13,7 @@ export default function ProfileFeed(props: { userId: string }) {
   if (!data || data.length === 0) return <div>no posts</div>;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-2">
       {data.map((fullPost) => (
         <PostView {...fullPost} key={fullPost.post.id} />
       ))}

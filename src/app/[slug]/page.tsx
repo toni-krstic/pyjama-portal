@@ -39,7 +39,7 @@ export default async function ProfilePage({ params }: Props) {
       </div>
       <div className="h-[64px]"></div>
       <div className="p-4 text-2xl font-bold">{`@${data.username}`}</div>
-      <div className="w-full border-b border-slate-400"></div>
+      <div className="mb-2 w-full"></div>
       <ProfileFeed userId={data.id} />
     </>
   );

@@ -39,7 +39,7 @@ export function CreatePost() {
 
   return (
     <>
-      <div className="flex w-full gap-3">
+      <div className="flex w-full gap-3 rounded-lg bg-slate-800 p-2">
         <UserButton
           appearance={{
             elements: {
@@ -56,7 +56,7 @@ export function CreatePost() {
         >
           <input
             type="text"
-            placeholder="Type some text"
+            placeholder="What is happening?!"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="w-full grow bg-transparent outline-none"
@@ -64,7 +64,7 @@ export function CreatePost() {
           />
           <button
             type="submit"
-            className="bg-transparent"
+            className="bg-transparent p-2"
             disabled={createPost.isLoading}
           >
             {createPost.isLoading ? <LoadingSpinner /> : "Post"}

@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { PostView } from "~/app/_components/PostView";
 import { api } from "~/trpc/server";
 
@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [data] = await api.post.getById.query({ id });
 
   return {
-    title: `${data?.post.content} - @${data?.author.username}`,
+    title: `${data?.content} - @${data?.postAuthor?.username}`,
   };
 }
 

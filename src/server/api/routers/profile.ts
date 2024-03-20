@@ -1,8 +1,6 @@
-import { clerkClient } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { filterUserForClient } from "~/core/utils";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { users } from "~/server/db/schema";
@@ -62,9 +60,9 @@ export const profileRouter = createTRPCRouter({
 
   getUserByUsername: publicProcedure
     .input(z.object({ username: z.string() }))
-    .query(async ({ input }) => {
-      const [user] = await clerkClient.users.getUserList({
-        username: [input.username],
+    .query(async ({ ctx, input }) => {
+      const [user] = await ctx.db.query.users.findMany({
+        where: eq(users.username, input.username),
       });
 
       if (!user) {
@@ -74,6 +72,6 @@ export const profileRouter = createTRPCRouter({
         });
       }
 
-      return filterUserForClient(user);
+      return user;
     }),
 });

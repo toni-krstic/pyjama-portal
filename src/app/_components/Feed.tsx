@@ -13,7 +13,7 @@ export function Feed() {
   return (
     <div className="flex flex-col gap-2">
       {data.map((fullPost) => (
-        <PostView {...fullPost} key={fullPost.post.id} />
+        <PostView {...fullPost} key={fullPost.id} />
       ))}
     </div>
   );

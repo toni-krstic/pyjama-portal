@@ -4,7 +4,7 @@
 
 // Resource: https://docs.svix.com/receiving/verifying-payloads/why
 // It's a good practice to verify webhooks. Above article shows why we should do it
-import { Webhook, WebhookRequiredHeaders } from "svix";
+import { Webhook, type WebhookRequiredHeaders } from "svix";
 import { headers } from "next/headers";
 
 import type { IncomingHttpHeaders } from "http";
@@ -25,7 +25,7 @@ type Event = {
 };
 
 export const POST = async (request: Request) => {
-  const payload = await request.json();
+  const payload: WebhookEvent = await request.json();
   const header = headers();
 
   const heads = {
@@ -55,7 +55,7 @@ export const POST = async (request: Request) => {
     const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};
 
     try {
-      // @ts-ignore
+      // @ts-expect-error mutate
       await api.profile.create.mutate({
         id: id?.toString() ?? "",
         username: username?.toString() ?? "",
@@ -78,7 +78,7 @@ export const POST = async (request: Request) => {
     const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};
 
     try {
-      // @ts-ignore
+      // @ts-expect-error mutate
       await api.profile.update.mutate({
         id: id?.toString() ?? "",
         username: username?.toString() ?? "",
@@ -101,7 +101,7 @@ export const POST = async (request: Request) => {
     try {
       const { id } = evnt?.data;
 
-      // @ts-ignore
+      // @ts-expect-error mutate
       await api.profile.delete.mutate({ id });
 
       return NextResponse.json({ message: "User deleted" }, { status: 201 });

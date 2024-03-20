@@ -1,9 +1,9 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { InferSelectModel, relations, sql } from "drizzle-orm";
+import { type InferSelectModel, relations, sql } from "drizzle-orm";
 import {
-  AnyPgColumn,
+  type AnyPgColumn,
   integer,
   pgTableCreator,
   timestamp,

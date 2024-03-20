@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import { api } from "~/trpc/server";
 import ProfileFeed from "../_components/ProfileFeed";
@@ -30,7 +30,7 @@ export default async function ProfilePage({ params }: Props) {
     <>
       <div className="relative h-48 bg-slate-600">
         <Image
-          src={data.profilePicture}
+          src={data.profileImage ?? ""}
           alt={`@${data.username}'s profile picture`}
           height={128}
           width={128}

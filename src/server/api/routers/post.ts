@@ -1,74 +1,43 @@
-import { clerkClient } from "@clerk/nextjs/server";
-import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
-import { filterUserForClient } from "~/core/utils";
 
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { Post, posts } from "~/server/db/schema";
-
-const addUsersDataToPosts = async (posts: Post[]) => {
-  const users = (
-    await clerkClient.users.getUserList({
-      userId: posts.map((post) => (post.authorId ? post.authorId : "")),
-      limit: 100,
-    })
-  ).map(filterUserForClient);
-
-  return posts.map((post) => {
-    const author = users.find((user) => user.id === post.authorId);
-
-    if (!author)
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Auithor for post not found",
-      });
-
-    return {
-      post,
-      author: {
-        ...author,
-        username: author.username,
-      },
-    };
-  });
-};
+import { comments, postLikes, posts } from "~/server/db/schema";
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     const posts = await ctx.db.query.posts.findMany({
+      with: { postAuthor: true },
       limit: 100,
       orderBy: (posts, { desc }) => [desc(posts.createdAt)],
     });
-    return addUsersDataToPosts(posts);
+    return posts;
   }),
 
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.db.query.posts
-        .findMany({
-          where: eq(posts.id, input.id),
-          limit: 100,
-          orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-        })
-        .then(addUsersDataToPosts);
+      return ctx.db.query.posts.findMany({
+        where: eq(posts.id, input.id),
+        with: { postAuthor: true },
+        limit: 100,
+        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      });
     }),
 
   getByUserId: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.db.query.posts
-        .findMany({
-          where: eq(posts.authorId, input.userId),
-          limit: 100,
-          orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-        })
-        .then(addUsersDataToPosts);
+      return ctx.db.query.posts.findMany({
+        where: eq(posts.authorId, input.userId),
+        with: { postAuthor: true },
+        limit: 100,
+        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      });
     }),
 
   create: privateProcedure
@@ -79,5 +48,43 @@ export const postRouter = createTRPCRouter({
         content: input.content,
         authorId,
       });
+    }),
+
+  comment: privateProcedure
+    .input(
+      z.object({
+        authorId: z.string(),
+        parentCommentId: z.string(),
+        originalPostId: z.string(),
+        content: z.string().min(1).max(256),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(comments).values({
+        parentCommentId: input.parentCommentId,
+        originalPostId: input.originalPostId,
+        content: input.content,
+        authorId: input.authorId,
+      });
+    }),
+
+  likePost: privateProcedure
+    .input(
+      z.object({
+        postId: z.string(),
+        authorId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(postLikes).values({
+        postId: input.postId,
+        authorId: input.authorId,
+      });
+      await ctx.db
+        .update(posts)
+        .set({
+          numLikes: sql`${posts.numLikes} + 1`,
+        })
+        .where(eq(posts.id, input.postId));
     }),
 });

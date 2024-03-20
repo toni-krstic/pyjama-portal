@@ -7,7 +7,7 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const id = Number(params.id);
+  const id = params.id;
 
   const [data] = await api.post.getById.query({ id });
 
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function SinglePostPage({ params }: Props) {
-  const id = Number(params.id);
+  const id = params.id;
   const [data] = await api.post.getById.query({ id });
 
   if (!data) return null;

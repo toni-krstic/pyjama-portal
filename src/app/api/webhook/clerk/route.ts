@@ -35,7 +35,7 @@ export const POST = async (request: Request) => {
 
   // Activitate Webhook in the Clerk Dashboard.
   // After adding the endpoint, you'll see the secret on the right side.
-  const wh = new Webhook(process.env.NEXT_CLERK_WEBHOOK_SECRET || "");
+  const wh = new Webhook(process.env.NEXT_CLERK_WEBHOOK_SECRET ?? "");
 
   let evnt: Event | null = null;
 
@@ -48,7 +48,7 @@ export const POST = async (request: Request) => {
     return NextResponse.json({ message: err }, { status: 400 });
   }
 
-  const eventType: EventType = evnt?.type!;
+  const eventType: EventType = evnt?.type;
 
   if (eventType === "user.created") {
     const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};

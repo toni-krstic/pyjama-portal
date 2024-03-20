@@ -7,11 +7,12 @@
 import { Webhook, WebhookRequiredHeaders } from "svix";
 import { headers } from "next/headers";
 
-import { IncomingHttpHeaders } from "http";
+import type { IncomingHttpHeaders } from "http";
 
 import { NextResponse } from "next/server";
 
 import { api } from "~/trpc/server";
+import type { WebhookEvent } from "@clerk/nextjs/server";
 
 // Resource: https://clerk.com/docs/integration/webhooks#supported-events
 // Above document lists the supported events
@@ -52,16 +53,15 @@ export const POST = async (request: Request) => {
 
   if (eventType === "user.created") {
     const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};
-    console.log(id, username, first_name, last_name, image_url, evnt?.data);
 
     try {
       // @ts-ignore
-      await api.profile.create({
-        id,
-        username,
-        firstName: first_name,
-        lastName: last_name,
-        profileImage: image_url,
+      await api.profile.create.mutate({
+        id: id?.toString() ?? "",
+        username: username?.toString() ?? "",
+        firstName: first_name?.toString() ?? "",
+        lastName: last_name?.toString() ?? "",
+        profileImage: image_url?.toString() ?? "",
       });
 
       return NextResponse.json({ message: "User created" }, { status: 201 });
@@ -79,12 +79,12 @@ export const POST = async (request: Request) => {
 
     try {
       // @ts-ignore
-      await api.profile.update({
-        id,
-        username,
-        firstName: first_name,
-        lastName: last_name,
-        profileImage: image_url,
+      await api.profile.update.mutate({
+        id: id?.toString() ?? "",
+        username: username?.toString() ?? "",
+        firstName: first_name?.toString() ?? "",
+        lastName: last_name?.toString() ?? "",
+        profileImage: image_url?.toString() ?? "",
       });
 
       return NextResponse.json({ message: "User updated" }, { status: 201 });
@@ -102,7 +102,7 @@ export const POST = async (request: Request) => {
       const { id } = evnt?.data;
 
       // @ts-ignore
-      await api.profile.delete({ id });
+      await api.profile.delete.mutate({ id });
 
       return NextResponse.json({ message: "User deleted" }, { status: 201 });
     } catch (err) {

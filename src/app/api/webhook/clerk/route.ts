@@ -55,7 +55,7 @@ export const POST = async (request: Request) => {
     const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};
 
     try {
-      // @ts-expect-error mutate
+      // @ts-ignore
       await api.profile.create.mutate({
         id: id?.toString() ?? "",
         username: username?.toString() ?? "",
@@ -78,7 +78,7 @@ export const POST = async (request: Request) => {
     const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};
 
     try {
-      // @ts-expect-error mutate
+      // @ts-ignore
       await api.profile.update.mutate({
         id: id?.toString() ?? "",
         username: username?.toString() ?? "",

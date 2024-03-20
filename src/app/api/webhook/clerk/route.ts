@@ -52,6 +52,7 @@ export const POST = async (request: Request) => {
 
   if (eventType === "user.created") {
     const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};
+    console.log(id, username, first_name, last_name, image_url, evnt?.data);
 
     try {
       // @ts-ignore

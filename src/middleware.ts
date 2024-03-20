@@ -8,10 +8,11 @@ export default authMiddleware({
     "/api/trpc/profile.create",
     "/api/trpc/profile.update",
     "/api/trpc/profile.delete",
+    "/api/webhook/clerk",
   ],
   // Routes that can always be accessed, and have
   // no authentication information
-  ignoredRoutes: ["/api/webhook/clerk"],
+  ignoredRoutes: [],
 });
 
 export const config = {

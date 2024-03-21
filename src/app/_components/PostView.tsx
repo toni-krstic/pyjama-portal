@@ -10,6 +10,7 @@ import { FaRegComment, FaRegHeart, FaRegShareSquare } from "react-icons/fa";
 import { api } from "~/trpc/react";
 import { useUser } from "@clerk/nextjs";
 import { useToast } from "./ui/use-toast";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(relativeTime);
 
@@ -18,6 +19,7 @@ export const PostView = (props: PostWithUser) => {
   const user = useUser();
   const { toast } = useToast();
   const utils = api.useUtils();
+  const router = useRouter();
 
   const likePost = api.post.like.useMutation({
     onSuccess: () => {
@@ -58,19 +60,23 @@ export const PostView = (props: PostWithUser) => {
           <span className="">{props.content}</span>
         </Link>
         <div className="flex w-full items-center justify-between text-slate-300">
-          <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">
+          <div
+            className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500"
+            onClick={() => router.push(`?createComment=true&id=${props.id}`)}
+          >
             <FaRegComment />
             <span>{props.numComments}</span>
           </div>
-          <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">
-            <FaRegHeart
-              onClick={() =>
-                likePost.mutate({
-                  authorId: user.user?.id ?? "",
-                  postId: props.id,
-                })
-              }
-            />
+          <div
+            className="flex cursor-pointer items-center justify-center gap-1 hover:text-red-500"
+            onClick={() =>
+              likePost.mutate({
+                authorId: user.user?.id ?? "",
+                postId: props.id,
+              })
+            }
+          >
+            <FaRegHeart />
             <span>{props.numLikes}</span>
           </div>
           <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">

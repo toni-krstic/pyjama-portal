@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -20,13 +21,16 @@ export const postRouter = createTRPCRouter({
 
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.query.posts.findMany({
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.db.query.posts.findMany({
         where: eq(posts.id, input.id),
         with: { postAuthor: true },
         limit: 100,
         orderBy: (posts, { desc }) => [desc(posts.createdAt)],
       });
+      if (post.length === 0)
+        throw new TRPCError({ code: "NOT_FOUND", message: "Post not found" });
+      return post[0];
     }),
 
   getByUserId: publicProcedure
@@ -61,11 +65,19 @@ export const postRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db.insert(comments).values({
-        parentCommentId: input.parentCommentId,
+        parentCommentId:
+          input.parentCommentId === "" ? null : input.parentCommentId,
         originalPostId: input.originalPostId,
         content: input.content,
         authorId: input.authorId,
       });
+
+      await ctx.db
+        .update(posts)
+        .set({
+          numComments: sql`${posts.numComments} + 1`,
+        })
+        .where(eq(posts.id, input.originalPostId));
     }),
 
   like: privateProcedure

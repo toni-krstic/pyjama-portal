@@ -39,7 +39,7 @@ export function CreatePost() {
 
   return (
     <>
-      <div className="flex w-full gap-3 rounded-lg bg-slate-800 p-2">
+      <div className="flex w-full gap-3 rounded-lg bg-slate-800 p-4">
         <UserButton
           appearance={{
             elements: {

@@ -6,7 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { TRPCReactProvider } from "~/trpc/react";
 
 import { Toaster } from "./_components/ui/toaster";
-import { CreateComment } from "./_components/CreateComment";
+import { Modal } from "./_components/Modal";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,7 +34,7 @@ export default function RootLayout({
                 {children}
               </div>
             </main>
-            <CreateComment />
+            <Modal />
           </TRPCReactProvider>
           <Toaster />
         </body>

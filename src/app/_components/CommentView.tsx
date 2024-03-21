@@ -63,7 +63,7 @@ export const CommentView = (props: Comment) => {
             className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500"
             onClick={() =>
               router.push(
-                `?createComment=true&id=${props?.originalPostId}&parentCommentId=${props?.parentCommentId}`,
+                `?comment=true&id=${props?.originalPostId}&parentCommentId=${props?.id}`,
               )
             }
           >

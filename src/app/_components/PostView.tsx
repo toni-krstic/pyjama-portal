@@ -62,7 +62,7 @@ export const PostView = (props: PostWithUser) => {
         <div className="flex w-full items-center justify-between text-slate-300">
           <div
             className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500"
-            onClick={() => router.push(`?createComment=true&id=${props.id}`)}
+            onClick={() => router.push(`?comment=true&id=${props.id}`)}
           >
             <FaRegComment />
             <span>{props.numComments}</span>

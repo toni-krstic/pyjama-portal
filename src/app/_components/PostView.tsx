@@ -19,7 +19,7 @@ export const PostView = (props: PostWithUser) => {
   const { toast } = useToast();
   const utils = api.useUtils();
 
-  const likePost = api.post.likePost.useMutation({
+  const likePost = api.post.like.useMutation({
     onSuccess: () => {
       void utils.post.getAll.invalidate();
     },
@@ -58,7 +58,10 @@ export const PostView = (props: PostWithUser) => {
           <span className="">{props.content}</span>
         </Link>
         <div className="flex w-full items-center justify-between text-slate-300">
-          <FaRegComment />
+          <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">
+            <FaRegComment />
+            <span>{props.numComments}</span>
+          </div>
           <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">
             <FaRegHeart
               onClick={() =>
@@ -70,7 +73,10 @@ export const PostView = (props: PostWithUser) => {
             />
             <span>{props.numLikes}</span>
           </div>
-          <FaRegShareSquare />
+          <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">
+            <FaRegShareSquare />
+            <span>{props.numShares}</span>
+          </div>
         </div>
       </div>
     </div>

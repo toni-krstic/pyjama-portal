@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import {
@@ -68,7 +68,7 @@ export const postRouter = createTRPCRouter({
       });
     }),
 
-  likePost: privateProcedure
+  like: privateProcedure
     .input(
       z.object({
         postId: z.string(),
@@ -76,15 +76,42 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(postLikes).values({
-        postId: input.postId,
-        authorId: input.authorId,
-      });
-      await ctx.db
-        .update(posts)
-        .set({
-          numLikes: sql`${posts.numLikes} + 1`,
-        })
-        .where(eq(posts.id, input.postId));
+      const like = await ctx.db
+        .select()
+        .from(postLikes)
+        .where(
+          and(
+            eq(postLikes.postId, input.postId),
+            eq(postLikes.authorId, input.authorId),
+          ),
+        );
+
+      if (like.length === 0) {
+        await ctx.db.insert(postLikes).values({
+          postId: input.postId,
+          authorId: input.authorId,
+        });
+        await ctx.db
+          .update(posts)
+          .set({
+            numLikes: sql`${posts.numLikes} + 1`,
+          })
+          .where(eq(posts.id, input.postId));
+      } else {
+        await ctx.db
+          .delete(postLikes)
+          .where(
+            and(
+              eq(postLikes.postId, input.postId),
+              eq(postLikes.authorId, input.authorId),
+            ),
+          );
+        await ctx.db
+          .update(posts)
+          .set({
+            numLikes: sql`${posts.numLikes} - 1`,
+          })
+          .where(eq(posts.id, input.postId));
+      }
     }),
 });

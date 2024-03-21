@@ -20,9 +20,14 @@ export const CommentView = (props: Comment) => {
   const utils = api.useUtils();
   const router = useRouter();
 
-  const likePost = api.post.like.useMutation({
+  const likePost = api.post.likeComment.useMutation({
     onSuccess: () => {
       void utils.post.getAll.invalidate();
+      void utils.post.getFullPostById.invalidate();
+      void utils.post.getCommentById.invalidate();
+      void utils.post.getByUserId.invalidate();
+      void utils.post.getById.invalidate();
+      router.refresh();
     },
     onError: (err) => {
       const errorMessage = err.data?.zodError?.fieldErrors.content;
@@ -68,13 +73,14 @@ export const CommentView = (props: Comment) => {
             }
           >
             <FaRegComment />
+            <span>{props?.childComments.length ?? 0}</span>
           </div>
           <div
             className="flex cursor-pointer items-center justify-center gap-1 hover:text-red-500"
             onClick={() =>
               likePost.mutate({
                 authorId: user.user?.id ?? "",
-                postId: props?.id ?? "",
+                commentId: props?.id ?? "",
               })
             }
           >
@@ -83,6 +89,7 @@ export const CommentView = (props: Comment) => {
           </div>
           <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">
             <FaRegShareSquare />
+            <span>{props?.commentShares.length ?? 0}</span>
           </div>
         </div>
       </div>

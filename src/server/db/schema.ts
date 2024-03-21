@@ -106,7 +106,7 @@ export const comments = createTable("comment", {
 });
 
 export const commentsRelations = relations(comments, ({ many, one }) => ({
-  parentComments: many(comments, { relationName: "parentComment" }),
+  childComments: many(comments, { relationName: "parentComment" }),
   commentLikes: many(commentLikes, { relationName: "commentLikes" }),
   commentShares: many(shares, { relationName: "commentShares" }),
   commentAuthor: one(users, {

@@ -24,6 +24,11 @@ export const PostView = (props: PostWithUser) => {
   const likePost = api.post.like.useMutation({
     onSuccess: () => {
       void utils.post.getAll.invalidate();
+      void utils.post.getFullPostById.invalidate();
+      void utils.post.getCommentById.invalidate();
+      void utils.post.getByUserId.invalidate();
+      void utils.post.getById.invalidate();
+      router.refresh();
     },
     onError: (err) => {
       const errorMessage = err.data?.zodError?.fieldErrors.content;

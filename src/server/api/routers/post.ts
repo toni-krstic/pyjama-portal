@@ -7,7 +7,7 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { comments, postLikes, posts } from "~/server/db/schema";
+import { commentLikes, comments, postLikes, posts } from "~/server/db/schema";
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -41,7 +41,12 @@ export const postRouter = createTRPCRouter({
         with: {
           postAuthor: true,
           comments: {
-            with: { commentAuthor: true },
+            with: {
+              commentAuthor: true,
+              childComments: true,
+              commentLikes: true,
+              commentShares: true,
+            },
             orderBy: (comments, { desc }) => [desc(comments.createdAt)],
           },
           likes: true,
@@ -107,7 +112,12 @@ export const postRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const [comment] = await ctx.db.query.comments.findMany({
         where: eq(comments.id, input.id),
-        with: { commentAuthor: true },
+        with: {
+          commentAuthor: true,
+          childComments: true,
+          commentLikes: true,
+          commentShares: true,
+        },
       });
       return comment;
     }),
@@ -156,6 +166,53 @@ export const postRouter = createTRPCRouter({
             numLikes: sql`${posts.numLikes} - 1`,
           })
           .where(eq(posts.id, input.postId));
+      }
+    }),
+
+  likeComment: privateProcedure
+    .input(
+      z.object({
+        commentId: z.string(),
+        authorId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const like = await ctx.db
+        .select()
+        .from(commentLikes)
+        .where(
+          and(
+            eq(commentLikes.commentId, input.commentId),
+            eq(commentLikes.authorId, input.authorId),
+          ),
+        );
+
+      if (like.length === 0) {
+        await ctx.db.insert(commentLikes).values({
+          commentId: input.commentId,
+          authorId: input.authorId,
+        });
+        await ctx.db
+          .update(comments)
+          .set({
+            numLikes: sql`${comments.numLikes} + 1`,
+          })
+          .where(eq(comments.id, input.commentId));
+      } else {
+        await ctx.db
+          .delete(commentLikes)
+          .where(
+            and(
+              eq(commentLikes.commentId, input.commentId),
+              eq(commentLikes.authorId, input.authorId),
+            ),
+          );
+        await ctx.db
+          .update(comments)
+          .set({
+            numLikes: sql`${comments.numLikes} - 1`,
+          })
+          .where(eq(comments.id, input.commentId));
       }
     }),
 });

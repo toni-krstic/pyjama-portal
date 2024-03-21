@@ -8,7 +8,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useToast } from "./ui/use-toast";
-import { LoadingSpinner } from "./Loader";
+import { LoadingPage, LoadingSpinner } from "./Loader";
 
 dayjs.extend(relativeTime);
 
@@ -16,6 +16,7 @@ export const CreateComment = () => {
   const searchParams = useSearchParams();
   const comment = searchParams.get("createComment");
   const id = searchParams.get("id");
+  const parentCommentId = searchParams.get("parentCommentId");
   const pathname = usePathname();
   const [content, setContent] = useState("");
   const { user } = useUser();
@@ -46,6 +47,7 @@ export const CreateComment = () => {
   });
 
   if (!data) return null;
+  if (!id) return <LoadingPage />;
   return (
     <>
       {comment && (
@@ -87,7 +89,7 @@ export const CreateComment = () => {
                     content,
                     originalPostId: id ?? "",
                     authorId: user?.id ?? "",
-                    parentCommentId: id ?? "",
+                    parentCommentId: parentCommentId ?? "",
                   });
                 }}
                 className="flex w-full gap-2"

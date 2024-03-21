@@ -212,3 +212,4 @@ export const commentLikesRelations = relations(commentLikes, ({ one }) => ({
 }));
 
 export type Post = InferSelectModel<typeof posts>;
+export type Comment = typeof comments.$inferSelect;

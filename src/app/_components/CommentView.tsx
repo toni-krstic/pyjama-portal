@@ -13,9 +13,8 @@ import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
 
 dayjs.extend(relativeTime);
-
-type PostWithUser = RouterOutputs["post"]["getAll"][number];
-export const PostView = (props: PostWithUser) => {
+type Comment = RouterOutputs["post"]["getCommentById"];
+export const CommentView = (props: Comment) => {
   const user = useUser();
   const { toast } = useToast();
   const utils = api.useUtils();
@@ -41,47 +40,49 @@ export const PostView = (props: PostWithUser) => {
     },
   });
   return (
-    <div className="flex gap-3 overflow-hidden rounded-lg bg-slate-700 p-4">
+    <div className="flex gap-3 overflow-hidden rounded-lg bg-slate-800 p-4">
       <Image
-        src={props.postAuthor?.profileImage ?? ""}
-        alt={`${props.postAuthor?.username} profile picture`}
+        src={props?.commentAuthor.profileImage ?? ""}
+        alt={`${props?.commentAuthor.username}'s profile picture`}
         height={56}
         width={56}
         className="h-14 w-14 rounded-full"
       />
       <div className="flex w-full flex-col gap-4 overflow-hidden p-2">
         <div className="flex flex-col text-slate-300">
-          <Link href={`/@${props.postAuthor?.username}`}>
-            <span>{`@${props.postAuthor?.username}`}</span>
+          <Link href={`/@${props?.commentAuthor.username}`}>
+            <span>{`@${props?.commentAuthor.username}`}</span>
           </Link>
-          <span className="text-sm font-thin">{`${dayjs(props.createdAt).fromNow()}`}</span>
+          <span className="text-sm font-thin">{`${dayjs(props?.createdAt).fromNow()}`}</span>
         </div>
-        <Link href={`/post/${props.id}`} className="">
-          <span className="">{props.content}</span>
+        <Link href={`/post/${props?.id}`} className="">
+          <span className="">{props?.content}</span>
         </Link>
         <div className="flex w-full items-center justify-between text-slate-300">
           <div
             className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500"
-            onClick={() => router.push(`?createComment=true&id=${props.id}`)}
+            onClick={() =>
+              router.push(
+                `?createComment=true&id=${props?.originalPostId}&parentCommentId=${props?.parentCommentId}`,
+              )
+            }
           >
             <FaRegComment />
-            <span>{props.numComments}</span>
           </div>
           <div
             className="flex cursor-pointer items-center justify-center gap-1 hover:text-red-500"
             onClick={() =>
               likePost.mutate({
                 authorId: user.user?.id ?? "",
-                postId: props.id,
+                postId: props?.id ?? "",
               })
             }
           >
             <FaRegHeart />
-            <span>{props.numLikes}</span>
+            <span>{props?.numLikes}</span>
           </div>
           <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">
             <FaRegShareSquare />
-            <span>{props.numShares}</span>
           </div>
         </div>
       </div>

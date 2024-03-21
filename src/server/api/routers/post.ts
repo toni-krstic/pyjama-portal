@@ -33,6 +33,28 @@ export const postRouter = createTRPCRouter({
       return post[0];
     }),
 
+  getFullPostById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.db.query.posts.findMany({
+        where: eq(posts.id, input.id),
+        with: {
+          postAuthor: true,
+          comments: {
+            with: { commentAuthor: true },
+            orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+          },
+          likes: true,
+          shares: true,
+        },
+        limit: 100,
+        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      });
+      if (post.length === 0)
+        throw new TRPCError({ code: "NOT_FOUND", message: "Post not found" });
+      return post[0];
+    }),
+
   getByUserId: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(({ ctx, input }) => {
@@ -78,6 +100,16 @@ export const postRouter = createTRPCRouter({
           numComments: sql`${posts.numComments} + 1`,
         })
         .where(eq(posts.id, input.originalPostId));
+    }),
+
+  getCommentById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const [comment] = await ctx.db.query.comments.findMany({
+        where: eq(comments.id, input.id),
+        with: { commentAuthor: true },
+      });
+      return comment;
     }),
 
   like: privateProcedure

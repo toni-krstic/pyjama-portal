@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CommentView } from "~/app/_components/CommentView";
+import { CreateCommentInput } from "~/app/_components/CreateCommentInput";
 import { PostView } from "~/app/_components/PostView";
 import { api } from "~/trpc/server";
 
@@ -24,11 +25,21 @@ export default async function SinglePostPage({ params }: Props) {
   if (!data) return null;
 
   return (
-    <div className="flex flex-col gap-2 p-8">
-      <PostView {...data} />
-      {data.comments.map((comment) => (
-        <CommentView {...comment} key={comment.id} />
-      ))}
-    </div>
+    <section className="flex h-full max-w-xl flex-col">
+      <div>
+        <PostView {...data} />
+      </div>
+
+      <div className="mt-7">
+        <CreateCommentInput originalPostId={id} parentCommentId={""} />
+      </div>
+
+      <div className="mt-10">
+        {data.comments.map((comment) => {
+          if (comment.parentCommentId === null)
+            return <CommentView {...comment} key={comment.id} />;
+        })}
+      </div>
+    </section>
   );
 }

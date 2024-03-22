@@ -12,7 +12,20 @@ import { commentLikes, comments, postLikes, posts } from "~/server/db/schema";
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     const posts = await ctx.db.query.posts.findMany({
-      with: { postAuthor: true },
+      with: {
+        postAuthor: true,
+        comments: {
+          with: {
+            commentAuthor: true,
+            childComments: true,
+            commentLikes: true,
+            commentShares: true,
+          },
+          orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+        },
+        likes: true,
+        shares: true,
+      },
       limit: 100,
       orderBy: (posts, { desc }) => [desc(posts.createdAt)],
     });
@@ -65,7 +78,20 @@ export const postRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.db.query.posts.findMany({
         where: eq(posts.authorId, input.userId),
-        with: { postAuthor: true },
+        with: {
+          postAuthor: true,
+          comments: {
+            with: {
+              commentAuthor: true,
+              childComments: true,
+              commentLikes: true,
+              commentShares: true,
+            },
+            orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+          },
+          likes: true,
+          shares: true,
+        },
         limit: 100,
         orderBy: (posts, { desc }) => [desc(posts.createdAt)],
       });

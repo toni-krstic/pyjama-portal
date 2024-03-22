@@ -14,13 +14,14 @@ import { useRouter } from "next/navigation";
 
 dayjs.extend(relativeTime);
 type Comment = RouterOutputs["post"]["getCommentById"];
+
 export const CommentView = (props: Comment) => {
   const user = useUser();
   const { toast } = useToast();
   const utils = api.useUtils();
   const router = useRouter();
 
-  const likePost = api.post.likeComment.useMutation({
+  const likeComment = api.post.likeComment.useMutation({
     onSuccess: () => {
       void utils.post.getAll.invalidate();
       void utils.post.getFullPostById.invalidate();
@@ -44,55 +45,76 @@ export const CommentView = (props: Comment) => {
       }
     },
   });
+
   return (
-    <div className="flex gap-3 overflow-hidden rounded-lg bg-slate-800 p-4">
-      <Image
-        src={props?.commentAuthor.profileImage ?? ""}
-        alt={`${props?.commentAuthor.username}'s profile picture`}
-        height={56}
-        width={56}
-        className="h-14 w-14 rounded-full"
-      />
-      <div className="flex w-full flex-col gap-4 overflow-hidden p-2">
-        <div className="flex flex-col text-slate-300">
-          <Link href={`/@${props?.commentAuthor.username}`}>
-            <span>{`@${props?.commentAuthor.username}`}</span>
-          </Link>
-          <span className="text-sm font-thin">{`${dayjs(props?.createdAt).fromNow()}`}</span>
-        </div>
-        <Link href={`/post/${props?.id}`} className="">
-          <span className="">{props?.content}</span>
-        </Link>
-        <div className="flex w-full items-center justify-between text-slate-300">
-          <div
-            className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500"
-            onClick={() =>
-              router.push(
-                `?comment=true&id=${props?.originalPostId}&parentCommentId=${props?.id}`,
-              )
-            }
-          >
-            <FaRegComment />
-            <span>{props?.childComments.length ?? 0}</span>
+    <article className="xs:px-7 flex w-full flex-col rounded-xl px-0">
+      <div className="flex items-start justify-between">
+        <div className="flex w-full flex-1 flex-row gap-4">
+          <div className="flex flex-col items-center">
+            <Link
+              href={`/@${props?.commentAuthor?.username}`}
+              className="relative h-11 w-11"
+            >
+              <Image
+                src={props?.commentAuthor?.profileImage ?? ""}
+                alt={`@${props?.commentAuthor?.username}'s profile pictur`}
+                fill
+                className="cursor-pointer rounded-full"
+              />
+            </Link>
+
+            <div className="relative mt-2 w-0.5 grow rounded-full bg-slate-700" />
           </div>
-          <div
-            className="flex cursor-pointer items-center justify-center gap-1 hover:text-red-500"
-            onClick={() =>
-              likePost.mutate({
-                authorId: user.user?.id ?? "",
-                commentId: props?.id ?? "",
-              })
-            }
-          >
-            <FaRegHeart />
-            <span>{props?.numLikes}</span>
-          </div>
-          <div className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-500">
-            <FaRegShareSquare />
-            <span>{props?.commentShares.length ?? 0}</span>
+
+          <div className="flex w-full flex-col">
+            <Link
+              href={`/@${props?.commentAuthor?.username}`}
+              className="w-fit"
+            >
+              <h4 className="text-base-semibold text-light-1 cursor-pointer">
+                {props?.commentAuthor?.username}
+              </h4>
+            </Link>
+
+            <p className="text-small-regular text-light-2 mt-2">
+              {props?.content}
+            </p>
+
+            <div className="mb-10 mt-5 flex flex-col gap-3">
+              <div className="flex gap-3.5">
+                <div
+                  className="flex cursor-pointer items-center justify-center gap-1 hover:text-red-500"
+                  onClick={() =>
+                    likeComment.mutate({
+                      authorId: user.user?.id ?? "",
+                      commentId: props?.id ?? "",
+                    })
+                  }
+                >
+                  <FaRegHeart />
+                  <span>{props?.numLikes}</span>
+                </div>
+                <Link
+                  href={`?comment=true&id=${props?.originalPostId}&parentCommentId=${props?.id}&isComment=true`}
+                  className="flex items-center justify-center"
+                >
+                  <FaRegComment />
+                </Link>
+              </div>
+
+              {props?.childComments.length &&
+                props.childComments.length > 0 && (
+                  <Link href={`?comment=true&id=${props?.id}`}>
+                    <p className="text-subtle-medium text-gray-1 mt-1">
+                      {props.childComments.length} repl
+                      {props.childComments.length > 1 ? "ies" : "y"}
+                    </p>
+                  </Link>
+                )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };

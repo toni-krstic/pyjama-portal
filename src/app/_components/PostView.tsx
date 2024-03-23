@@ -71,7 +71,7 @@ export const PostView = (props: fullPost) => {
                 <h4 className="flex cursor-pointer items-center gap-1">
                   {`${props?.postAuthor?.firstName} ${props?.postAuthor?.lastName}`}
                   <span className="text-xs font-thin">
-                    {`· @${props?.postAuthor?.username}`}{" "}
+                    {`· @${props?.postAuthor?.username}`}
                   </span>
                 </h4>
               </Link>

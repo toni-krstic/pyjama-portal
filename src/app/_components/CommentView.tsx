@@ -75,7 +75,7 @@ export const CommentView = (props: Comment) => {
                 <h4 className="flex cursor-pointer items-center gap-1">
                   {`${props?.commentAuthor?.firstName} ${props?.commentAuthor?.lastName}`}
                   <span className="text-xs font-thin">
-                    {`· @${props?.commentAuthor?.username}`}{" "}
+                    {`· @${props?.commentAuthor?.username}`}
                   </span>
                 </h4>
               </Link>

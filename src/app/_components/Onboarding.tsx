@@ -1,14 +1,12 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useToast } from "../_components/ui/use-toast";
 import { useState } from "react";
 import Image from "next/image";
 
-export default function Onboarding() {
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-
+export const Onboarding = (params: { id: string }) => {
+  const { id } = params;
   const router = useRouter();
   const utils = api.useUtils();
   const { toast } = useToast();
@@ -124,4 +122,4 @@ export default function Onboarding() {
       </div>
     </div>
   );
-}
+};

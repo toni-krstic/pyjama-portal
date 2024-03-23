@@ -5,7 +5,7 @@ import { useToast } from "../_components/ui/use-toast";
 import { useState } from "react";
 import Image from "next/image";
 
-export const Onboarding = () => {
+export default function Onboarding() {
   const id = useSearchParams().get("id") ?? "";
   const router = useRouter();
   const utils = api.useUtils();
@@ -122,4 +122,4 @@ export const Onboarding = () => {
       </div>
     </div>
   );
-};
+}

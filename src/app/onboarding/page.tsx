@@ -1,16 +1,18 @@
 "use client";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "../_components/ui/use-toast";
 import { useState } from "react";
+import Image from "next/image";
 
-export const Onboarding = (params: { id: string }) => {
-  const { id } = params;
+export default function Onboarding() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
   const router = useRouter();
   const utils = api.useUtils();
   const { toast } = useToast();
-  const { data } = api.profile.getUserById.useQuery({ id });
+  const { data } = api.profile.getUserById.useQuery({ id: id ?? "" });
   const [user, setUser] = useState({
     username: "",
     firstName: "",
@@ -122,4 +124,4 @@ export const Onboarding = (params: { id: string }) => {
       </div>
     </div>
   );
-};
+}

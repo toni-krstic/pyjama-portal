@@ -57,7 +57,9 @@ export const POST = async (request: Request) => {
     try {
       await api.profile.create.mutate({
         id: id?.toString() ?? "",
-        username: username?.toString() ?? "",
+        username:
+          username?.toString() ??
+          `${first_name?.toString()}-${last_name?.toString()}`,
         firstName: first_name?.toString() ?? "",
         lastName: last_name?.toString() ?? "",
         profileImage: image_url?.toString() ?? "",

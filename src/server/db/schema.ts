@@ -54,12 +54,12 @@ export const followers = createTable("follower", {
 
 export const followersRelations = relations(followers, ({ one }) => ({
   follower: one(users, {
-    fields: [followers.followerId],
+    fields: [followers.followingId],
     references: [users.id],
     relationName: "followers",
   }),
   following: one(users, {
-    fields: [followers.followingId],
+    fields: [followers.followerId],
     references: [users.id],
     relationName: "following",
   }),

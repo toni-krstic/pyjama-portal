@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { api } from "~/trpc/server";
 import ProfileFeed from "../_components/ProfileFeed";
+import { currentUser } from "@clerk/nextjs/server";
+import { FollowButton } from "../_components/FollowButton";
 
 type Props = {
   params: { slug: string };
@@ -24,8 +26,9 @@ export default async function ProfilePage({ params }: Props) {
   const data = await api.profile.getUserByUsername.query({
     username,
   });
+  const user = await currentUser();
 
-  if (!data) return null;
+  if (!data ?? !user) return null;
   return (
     <>
       <div className="relative h-48 bg-slate-600">
@@ -41,6 +44,21 @@ export default async function ProfilePage({ params }: Props) {
       <div className="p-4 text-2xl font-bold">
         {`${data.firstName} ${data.lastName} `}
         <span className="text-sm font-thin">{`· @${data.username}`}</span>
+        <FollowButton {...data} />
+      </div>
+      <div className="p-4 text-lg font-thin">
+        <span>{data.bio}</span>
+      </div>
+      <div className="p-4 ">
+        <span className=" font-normal">
+          {data.following.length}{" "}
+          <span className="text-sm font-thin">following</span>
+        </span>
+        {"  "}
+        <span className=" font-normal">
+          {data.followers.length}{" "}
+          <span className="text-sm font-thin">followers</span>
+        </span>
       </div>
       <div className="mb-2 w-full"></div>
       <ProfileFeed userId={data.id} />

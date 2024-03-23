@@ -1,9 +1,13 @@
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { users } from "~/server/db/schema";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
+import { followers, users } from "~/server/db/schema";
 
 export const profileRouter = createTRPCRouter({
   create: publicProcedure
@@ -82,6 +86,7 @@ export const profileRouter = createTRPCRouter({
     .input(z.object({ username: z.string() }))
     .query(async ({ ctx, input }) => {
       const [user] = await ctx.db.query.users.findMany({
+        with: { followers: true, following: true },
         where: eq(users.username, input.username),
       });
 
@@ -99,9 +104,40 @@ export const profileRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const [user] = await ctx.db.query.users.findMany({
+        with: { followers: true, following: true },
         where: eq(users.id, input.id),
       });
 
       return user;
+    }),
+
+  follow: privateProcedure
+    .input(z.object({ followingId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const followerId = ctx.currentUser.userId ?? "";
+      const [follow] = await ctx.db
+        .select()
+        .from(followers)
+        .where(
+          and(
+            eq(followers.followerId, followerId),
+            eq(followers.followingId, input.followingId),
+          ),
+        );
+      if (!follow) {
+        await ctx.db.insert(followers).values({
+          followerId: followerId,
+          followingId: input.followingId,
+        });
+      } else {
+        await ctx.db
+          .delete(followers)
+          .where(
+            and(
+              eq(followers.followerId, followerId),
+              eq(followers.followingId, input.followingId),
+            ),
+          );
+      }
     }),
 });

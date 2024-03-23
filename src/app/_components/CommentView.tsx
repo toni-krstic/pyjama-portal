@@ -67,14 +67,22 @@ export const CommentView = (props: Comment) => {
           </div>
 
           <div className="flex w-full flex-col">
-            <Link
-              href={`/@${props?.commentAuthor?.username}`}
-              className="w-fit"
-            >
-              <h4 className="text-base-semibold text-light-1 cursor-pointer">
-                {props?.commentAuthor?.username}
-              </h4>
-            </Link>
+            <div className="flex flex-col">
+              <Link
+                href={`/@${props?.commentAuthor?.username}`}
+                className="w-fit"
+              >
+                <h4 className="flex cursor-pointer items-center gap-1">
+                  {`${props?.commentAuthor?.firstName} ${props?.commentAuthor?.lastName}`}
+                  <span className="text-xs font-thin">
+                    {`· @${props?.commentAuthor?.username}`}{" "}
+                  </span>
+                </h4>
+              </Link>
+              <span className="text-xs font-thin">{`${dayjs(
+                props?.createdAt,
+              ).fromNow()}`}</span>
+            </div>
 
             <Link href={`/comment/${props?.id}`}>
               <p className="text-small-regular text-light-2 mt-2">
@@ -84,34 +92,27 @@ export const CommentView = (props: Comment) => {
 
             <div className="mb-10 mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">
-                <div
-                  className="flex cursor-pointer items-center justify-center gap-1 hover:text-red-500"
+                <FaRegHeart
+                  className="cursor-pointer hover:text-red-500"
                   onClick={() =>
                     likeComment.mutate({
                       authorId: user.user?.id ?? "",
                       commentId: props?.id ?? "",
                     })
                   }
-                >
-                  <FaRegHeart />
-                  <span>{props?.numLikes}</span>
-                </div>
+                />
                 <Link
                   href={`?comment=true&id=${props?.originalPostId}&parentCommentId=${props?.id}&isComment=true`}
-                  className="flex items-center justify-center"
                 >
-                  <FaRegComment />
+                  <FaRegComment className="hover:text-blue-500" />
                 </Link>
               </div>
 
-              {props?.childComments && props.childComments.length > 0 && (
-                <Link href={`/comment/${props?.id}`}>
-                  <p className="text-subtle-medium text-gray-1 mt-1">
-                    {props.childComments.length} repl
-                    {props.childComments.length > 1 ? "ies" : "y"}
-                  </p>
-                </Link>
-              )}
+              <Link href={`/comment/${props?.id}`}>
+                <p className="mt-1 text-sm font-extralight">
+                  {`${props?.childComments.length} ${props?.childComments.length === 1 ? "reply" : "relpies"} · ${props?.numLikes} ${props?.numLikes === 1 ? "like" : "likes"}`}
+                </p>
+              </Link>
             </div>
           </div>
         </div>

@@ -66,11 +66,19 @@ export const PostView = (props: fullPost) => {
           </div>
 
           <div className="flex w-full flex-col">
-            <Link href={`/@${props?.postAuthor?.username}`} className="w-fit">
-              <h4 className="text-base-semibold text-light-1 cursor-pointer">
-                {props?.postAuthor?.username}
-              </h4>
-            </Link>
+            <div className="flex flex-col">
+              <Link href={`/@${props?.postAuthor?.username}`} className="w-fit">
+                <h4 className="flex cursor-pointer items-center gap-1">
+                  {`${props?.postAuthor?.firstName} ${props?.postAuthor?.lastName}`}
+                  <span className="text-xs font-thin">
+                    {`· @${props?.postAuthor?.username}`}{" "}
+                  </span>
+                </h4>
+              </Link>
+              <span className="text-xs font-thin">{`${dayjs(
+                props?.createdAt,
+              ).fromNow()}`}</span>
+            </div>
 
             <Link href={`/post/${props?.id}`}>
               <p className="text-small-regular text-light-2 mt-2">
@@ -80,23 +88,17 @@ export const PostView = (props: fullPost) => {
 
             <div className="mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">
-                <div
-                  className="flex cursor-pointer items-center justify-center gap-1 hover:text-red-500"
+                <FaRegHeart
+                  className="cursor-pointer hover:text-red-500"
                   onClick={() =>
                     likePost.mutate({
                       authorId: user.user?.id ?? "",
                       postId: props?.id ?? "",
                     })
                   }
-                >
-                  <FaRegHeart />
-                  <span>{props?.numLikes}</span>
-                </div>
-                <Link
-                  href={`?comment=true&id=${props?.id}`}
-                  className="flex items-center justify-center"
-                >
-                  <FaRegComment />
+                />
+                <Link href={`?comment=true&id=${props?.id}`}>
+                  <FaRegComment className="hover:text-blue-500" />
                 </Link>
               </div>
             </div>
@@ -104,26 +106,27 @@ export const PostView = (props: fullPost) => {
         </div>
       </div>
 
-      {props?.numComments && props.numComments > 0 && (
-        <div className="ml-1 mt-3 flex items-center gap-2">
-          {props.comments.slice(0, 2).map((comment, index) => (
-            <Image
-              key={index}
-              src={comment.commentAuthor.profileImage ?? ""}
-              alt={`user_${index}`}
-              width={24}
-              height={24}
-              className={`${index !== 0 && "-ml-5"} rounded-full object-cover`}
-            />
-          ))}
-
-          <Link href={`/post/${props?.id}`}>
-            <p className="text-subtle-medium text-gray-1 mt-1">
-              {props.numComments} repl{props.numComments > 1 ? "ies" : "y"}
-            </p>
-          </Link>
-        </div>
-      )}
+      <div className="ml-1 mt-3 flex items-center gap-2">
+        {props && props.comments.length > 0 && (
+          <>
+            {props.comments.slice(0, 2).map((comment, index) => (
+              <Image
+                key={index}
+                src={comment.commentAuthor.profileImage ?? ""}
+                alt={`user_${index}`}
+                width={24}
+                height={24}
+                className={`${index !== 0 && "-ml-5"} rounded-full object-cover`}
+              />
+            ))}
+          </>
+        )}
+        <Link href={`/post/${props?.id}`}>
+          <p className="mt-1 text-sm font-extralight">
+            {`${props?.numComments} ${props?.numComments === 1 ? "reply" : "relpies"} · ${props?.numLikes} ${props?.numLikes === 1 ? "like" : "likes"}`}
+          </p>
+        </Link>
+      </div>
     </article>
   );
 };

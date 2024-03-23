@@ -29,7 +29,7 @@ export default function Onboarding() {
         bio: "",
       });
       void utils.post.getAll.invalidate();
-      router.back();
+      router.push("/");
       router.refresh();
     },
     onError: (err) => {

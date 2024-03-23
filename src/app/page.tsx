@@ -10,12 +10,12 @@ export default async function Home() {
   noStore();
   const user = await currentUser();
   const dbUser = await api.profile.getUserById.query({ id: user?.id ?? "" });
-  if (dbUser.onboarding) redirect(`/onboarding?id=${dbUser.id}`);
+  if (dbUser && dbUser.onboarding) redirect(`/onboarding?id=${dbUser.id}`);
 
   return (
     <>
       <div className="my-2">
-        {!user && (
+        {!dbUser && (
           <div className="flex justify-center">
             <SignInButton />
           </div>

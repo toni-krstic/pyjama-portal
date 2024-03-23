@@ -102,13 +102,6 @@ export const profileRouter = createTRPCRouter({
         where: eq(users.id, input.id),
       });
 
-      if (!user) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "User not found",
-        });
-      }
-
       return user;
     }),
 });

@@ -9,6 +9,7 @@ import {
   timestamp,
   uuid,
   varchar,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -24,6 +25,8 @@ export const users = createTable("user", {
   username: varchar("username", { length: 100 }).notNull().unique(),
   firstName: varchar("firstName", { length: 50 }).notNull(),
   lastName: varchar("lastName", { length: 50 }).notNull(),
+  bio: varchar("bio", { length: 256 }),
+  onboarding: boolean("onboarding").default(true),
   profileImage: varchar("profileImage", { length: 256 }),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)

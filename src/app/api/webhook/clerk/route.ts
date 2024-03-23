@@ -55,7 +55,6 @@ export const POST = async (request: Request) => {
     const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};
 
     try {
-      // @ts-ignore
       await api.profile.create.mutate({
         id: id?.toString() ?? "",
         username: username?.toString() ?? "",
@@ -75,15 +74,11 @@ export const POST = async (request: Request) => {
   }
 
   if (eventType === "user.updated") {
-    const { id, username, first_name, last_name, image_url } = evnt?.data ?? {};
+    const { id, image_url } = evnt?.data ?? {};
 
     try {
-      // @ts-ignore
-      await api.profile.update.mutate({
+      await api.profile.updateProfileImage.mutate({
         id: id?.toString() ?? "",
-        username: username?.toString() ?? "",
-        firstName: first_name?.toString() ?? "",
-        lastName: last_name?.toString() ?? "",
         profileImage: image_url?.toString() ?? "",
       });
 
@@ -101,8 +96,7 @@ export const POST = async (request: Request) => {
     try {
       const { id } = evnt?.data;
 
-      // @ts-expect-error mutate
-      await api.profile.delete.mutate({ id });
+      await api.profile.delete.mutate({ id: id?.toString() ?? "" });
 
       return NextResponse.json({ message: "User deleted" }, { status: 201 });
     } catch (err) {

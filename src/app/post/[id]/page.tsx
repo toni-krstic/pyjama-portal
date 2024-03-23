@@ -31,7 +31,11 @@ export default async function SinglePostPage({ params }: Props) {
       </div>
 
       <div className="mt-7">
-        <CreateCommentInput originalPostId={id} parentCommentId={""} />
+        <CreateCommentInput
+          originalPostId={id}
+          parentCommentId={""}
+          isModal={false}
+        />
       </div>
 
       <div className="mt-10">

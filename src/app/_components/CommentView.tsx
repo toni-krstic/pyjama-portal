@@ -76,9 +76,11 @@ export const CommentView = (props: Comment) => {
               </h4>
             </Link>
 
-            <p className="text-small-regular text-light-2 mt-2">
-              {props?.content}
-            </p>
+            <Link href={`/comment/${props?.id}`}>
+              <p className="text-small-regular text-light-2 mt-2">
+                {props?.content}
+              </p>
+            </Link>
 
             <div className="mb-10 mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">
@@ -102,15 +104,14 @@ export const CommentView = (props: Comment) => {
                 </Link>
               </div>
 
-              {props?.childComments.length &&
-                props.childComments.length > 0 && (
-                  <Link href={`?comment=true&id=${props?.id}`}>
-                    <p className="text-subtle-medium text-gray-1 mt-1">
-                      {props.childComments.length} repl
-                      {props.childComments.length > 1 ? "ies" : "y"}
-                    </p>
-                  </Link>
-                )}
+              {props?.childComments && props.childComments.length > 0 && (
+                <Link href={`/comment/${props?.id}`}>
+                  <p className="text-subtle-medium text-gray-1 mt-1">
+                    {props.childComments.length} repl
+                    {props.childComments.length > 1 ? "ies" : "y"}
+                  </p>
+                </Link>
+              )}
             </div>
           </div>
         </div>

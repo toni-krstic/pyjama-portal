@@ -17,7 +17,17 @@ export const postRouter = createTRPCRouter({
         comments: {
           with: {
             commentAuthor: true,
-            childComments: true,
+            childComments: {
+              with: {
+                commentAuthor: true,
+                childComments: true,
+                commentLikes: true,
+                commentShares: true,
+              },
+              orderBy: (childComments, { desc }) => [
+                desc(childComments.createdAt),
+              ],
+            },
             commentLikes: true,
             commentShares: true,
           },
@@ -56,7 +66,17 @@ export const postRouter = createTRPCRouter({
           comments: {
             with: {
               commentAuthor: true,
-              childComments: true,
+              childComments: {
+                with: {
+                  commentAuthor: true,
+                  childComments: true,
+                  commentLikes: true,
+                  commentShares: true,
+                },
+                orderBy: (childComments, { desc }) => [
+                  desc(childComments.createdAt),
+                ],
+              },
               commentLikes: true,
               commentShares: true,
             },
@@ -83,7 +103,17 @@ export const postRouter = createTRPCRouter({
           comments: {
             with: {
               commentAuthor: true,
-              childComments: true,
+              childComments: {
+                with: {
+                  commentAuthor: true,
+                  childComments: true,
+                  commentLikes: true,
+                  commentShares: true,
+                },
+                orderBy: (childComments, { desc }) => [
+                  desc(childComments.createdAt),
+                ],
+              },
               commentLikes: true,
               commentShares: true,
             },
@@ -140,7 +170,17 @@ export const postRouter = createTRPCRouter({
         where: eq(comments.id, input.id),
         with: {
           commentAuthor: true,
-          childComments: true,
+          childComments: {
+            with: {
+              commentAuthor: true,
+              childComments: true,
+              commentLikes: true,
+              commentShares: true,
+            },
+            orderBy: (childComments, { desc }) => [
+              desc(childComments.createdAt),
+            ],
+          },
           commentLikes: true,
           commentShares: true,
         },

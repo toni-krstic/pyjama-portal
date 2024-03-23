@@ -9,8 +9,9 @@ import Image from "next/image";
 export const CreateCommentInput = (props: {
   originalPostId: string;
   parentCommentId: string;
+  isModal: boolean;
 }) => {
-  const { originalPostId, parentCommentId } = props;
+  const { originalPostId, parentCommentId, isModal } = props;
   const [content, setContent] = useState("");
   const { toast } = useToast();
   const utils = api.useUtils();
@@ -25,7 +26,7 @@ export const CreateCommentInput = (props: {
       void utils.post.getCommentById.invalidate();
       void utils.post.getByUserId.invalidate();
       void utils.post.getById.invalidate();
-      router.back();
+      isModal && router.back();
       router.refresh();
     },
     onError: (err) => {

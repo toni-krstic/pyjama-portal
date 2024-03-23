@@ -58,7 +58,7 @@ export const followersRelations = relations(followers, ({ one }) => ({
   following: one(users, {
     fields: [followers.followingId],
     references: [users.id],
-    relationName: "followings",
+    relationName: "following",
   }),
 }));
 
@@ -99,6 +99,8 @@ export const comments = createTable("comment", {
     .references(() => users.id),
   content: varchar("content", { length: 256 }).notNull(),
   numLikes: integer("numLikes").default(0),
+  numComments: integer("numComments").default(0),
+  numShares: integer("numShares").default(0),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

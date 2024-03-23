@@ -37,14 +37,9 @@ export const CreateComment = (props: {
         <CreateCommentInput
           originalPostId={id}
           parentCommentId={parentCommentId}
+          isModal={true}
         />
       </div>
-
-      {/* <div className="mt-10">
-        {data.comments.map((childItem) => (
-          <CommentView2 {...childItem} key={childItem.id} />
-        ))}
-      </div> */}
     </section>
   );
 };

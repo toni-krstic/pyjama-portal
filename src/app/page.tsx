@@ -5,6 +5,7 @@ import { CreatePost } from "~/app/_components/CreatePost";
 import { Feed } from "./_components/Feed";
 import { api } from "~/trpc/server";
 import { redirect } from "next/navigation";
+import { ChooseFeed } from "./_components/ChooseFeed";
 
 export default async function Home() {
   noStore();
@@ -20,9 +21,10 @@ export default async function Home() {
             <SignInButton />
           </div>
         )}
-        {!!user && <CreatePost />}
+        {dbUser && <CreatePost />}
       </div>
-      <Feed />
+      {dbUser && <ChooseFeed {...dbUser} />}
+      {!dbUser && <Feed />}
     </>
   );
 }

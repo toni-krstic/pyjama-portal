@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import {
@@ -41,6 +41,41 @@ export const postRouter = createTRPCRouter({
     });
     return posts;
   }),
+
+  getFollowing: publicProcedure
+    .input(z.object({ following: z.array(z.string()) }))
+    .query(async ({ ctx, input }) => {
+      const followingPosts = await ctx.db.query.posts.findMany({
+        where: inArray(posts.authorId, input.following),
+        with: {
+          postAuthor: true,
+          comments: {
+            with: {
+              commentAuthor: true,
+              childComments: {
+                with: {
+                  commentAuthor: true,
+                  childComments: true,
+                  commentLikes: true,
+                  commentShares: true,
+                },
+                orderBy: (childComments, { desc }) => [
+                  desc(childComments.createdAt),
+                ],
+              },
+              commentLikes: true,
+              commentShares: true,
+            },
+            orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+          },
+          likes: true,
+          shares: true,
+        },
+        limit: 100,
+        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      });
+      return followingPosts;
+    }),
 
   getById: publicProcedure
     .input(z.object({ id: z.string() }))

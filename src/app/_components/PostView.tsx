@@ -2,6 +2,7 @@
 import Image from "next/image";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import classNames from "classnames";
 
 import type { RouterOutputs } from "~/trpc/shared";
 import Link from "next/link";
@@ -20,6 +21,7 @@ export const PostView = (props: fullPost) => {
   const { toast } = useToast();
   const utils = api.useUtils();
   const router = useRouter();
+  const isLiked = props?.likes.some((like) => like.authorId === user?.user?.id);
 
   const likePost = api.post.like.useMutation({
     onSuccess: () => {
@@ -89,7 +91,7 @@ export const PostView = (props: fullPost) => {
             <div className="mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">
                 <FaRegHeart
-                  className="cursor-pointer hover:text-red-500"
+                  className={`${classNames("cursor-pointer", { "hover:text-red-500": !isLiked, "text-red-500": isLiked })}`}
                   onClick={() =>
                     likePost.mutate({
                       authorId: user.user?.id ?? "",

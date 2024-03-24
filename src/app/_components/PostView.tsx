@@ -86,11 +86,11 @@ export const PostView = (props: fullPost) => {
 
             <div className="text-small-regular text-light-2 overflow-none mt-2 text-ellipsis">
               {props?.content}
-              {link && (
+              {/* {link && (
                 <div className="mt-10">
                   <PreviewLink link={link[0]} />
                 </div>
-              )}
+              )} */}
             </div>
 
             <div className="mt-5 flex flex-col gap-3">

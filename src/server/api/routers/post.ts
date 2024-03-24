@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { getLinkPreview, getPreviewFromContent } from "link-preview-js";
+import { getLinkPreview } from "link-preview-js";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -9,19 +9,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { commentLikes, comments, postLikes, posts } from "~/server/db/schema";
-
-type LinkData = {
-  url: string;
-  title: string;
-  siteName: string;
-  description: string;
-  mediaType: string;
-  contentType: string;
-  images: string[];
-  videos: string[];
-  favicons: string[];
-  charset: string;
-};
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -320,8 +307,7 @@ export const postRouter = createTRPCRouter({
   getLinkData: publicProcedure
     .input(z.object({ link: z.string() }))
     .query(async ({ input }) => {
-      //@ts-ignore
-      const data: LinkData = await getLinkPreview(input.link);
+      const data = await getLinkPreview(input.link);
       return data;
     }),
 });

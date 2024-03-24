@@ -1,11 +1,14 @@
-"use client";
+import { useQuery } from "@tanstack/react-query";
+import { getLinkPreview } from "link-preview-js";
 import Link from "next/link";
 import ReactPlayer from "react-player";
 import { api } from "~/trpc/react";
 
 export const PreviewLink = (props: { link: string }) => {
   const { link } = props;
-  const { data } = api.post.getLinkData.useQuery({ link: link });
+
+  const { data } = api.post.getLinkData.useQuery({ link });
+
   if (!data) return null;
 
   const player =
@@ -21,7 +24,12 @@ export const PreviewLink = (props: { link: string }) => {
       ) : (
         <>
           <Link href={data.url} target="_blank">
-            <img src={data.images[0]} alt="link" width={200} height={150} />
+            <img
+              src={data.favicons[0] ?? ""}
+              alt="link"
+              width={50}
+              height={50}
+            />
           </Link>
         </>
       )}

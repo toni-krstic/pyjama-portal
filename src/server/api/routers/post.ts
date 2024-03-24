@@ -307,7 +307,12 @@ export const postRouter = createTRPCRouter({
   getLinkData: publicProcedure
     .input(z.object({ link: z.string() }))
     .query(async ({ input }) => {
-      const data = await getLinkPreview(input.link);
-      return data;
+      try {
+        const data = await getLinkPreview(input.link);
+        return data;
+      } catch (err) {
+        console.log(err);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
     }),
 });

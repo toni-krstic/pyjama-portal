@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { getLinkPreview } from "link-preview-js";
 import Link from "next/link";
 import ReactPlayer from "react-player";
 import { api } from "~/trpc/react";

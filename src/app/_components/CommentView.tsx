@@ -12,6 +12,7 @@ import { api } from "~/trpc/react";
 import { useUser } from "@clerk/nextjs";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
+import { PreviewLink } from "./PreviewLink";
 
 dayjs.extend(relativeTime);
 type Comment = RouterOutputs["post"]["getCommentById"];
@@ -24,14 +25,15 @@ export const CommentView = (props: Comment) => {
   const isLiked = props?.commentLikes.some(
     (like) => like.authorId === user?.user?.id,
   );
+  const link = props?.content?.match(/\b(?:https?|ftp):\/\/\S+/gi) ?? "";
 
   const likeComment = api.post.likeComment.useMutation({
     onSuccess: () => {
       void utils.post.getAll.invalidate();
-      void utils.post.getFullPostById.invalidate();
       void utils.post.getCommentById.invalidate();
       void utils.post.getByUserId.invalidate();
       void utils.post.getById.invalidate();
+      void utils.post.getFollowing.invalidate();
       router.refresh();
     },
     onError: (err) => {
@@ -88,11 +90,14 @@ export const CommentView = (props: Comment) => {
               ).fromNow()}`}</span>
             </div>
 
-            <Link href={`/comment/${props?.id}`}>
-              <p className="text-small-regular text-light-2 mt-2">
-                {props?.content}
-              </p>
-            </Link>
+            <div className="text-small-regular text-light-2 overflow-none mt-2 text-ellipsis">
+              {props?.content}
+              {link && (
+                <div className="mt-10">
+                  <PreviewLink link={link[0]} />
+                </div>
+              )}
+            </div>
 
             <div className="mb-10 mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">

@@ -22,10 +22,10 @@ export const CreateCommentInput = (props: {
     onSuccess: () => {
       setContent("");
       void utils.post.getAll.invalidate();
-      void utils.post.getFullPostById.invalidate();
       void utils.post.getCommentById.invalidate();
       void utils.post.getByUserId.invalidate();
       void utils.post.getById.invalidate();
+      void utils.post.getFollowing.invalidate();
       isModal && router.back();
       router.refresh();
     },

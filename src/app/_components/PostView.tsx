@@ -12,24 +12,26 @@ import { api } from "~/trpc/react";
 import { useUser } from "@clerk/nextjs";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
+import { PreviewLink } from "./PreviewLink";
 
 dayjs.extend(relativeTime);
 
-type fullPost = RouterOutputs["post"]["getFullPostById"];
+type fullPost = RouterOutputs["post"]["getById"];
 export const PostView = (props: fullPost) => {
   const user = useUser();
   const { toast } = useToast();
   const utils = api.useUtils();
   const router = useRouter();
   const isLiked = props?.likes.some((like) => like.authorId === user?.user?.id);
+  const link = props?.content?.match(/\b(?:https?|ftp):\/\/\S+/gi) ?? "";
 
   const likePost = api.post.like.useMutation({
     onSuccess: () => {
       void utils.post.getAll.invalidate();
-      void utils.post.getFullPostById.invalidate();
       void utils.post.getCommentById.invalidate();
       void utils.post.getByUserId.invalidate();
       void utils.post.getById.invalidate();
+      void utils.post.getFollowing.invalidate();
       router.refresh();
     },
     onError: (err) => {
@@ -82,11 +84,14 @@ export const PostView = (props: fullPost) => {
               ).fromNow()}`}</span>
             </div>
 
-            <Link href={`/post/${props?.id}`}>
-              <p className="text-small-regular text-light-2 mt-2">
-                {props?.content}
-              </p>
-            </Link>
+            <div className="text-small-regular text-light-2 overflow-none mt-2 text-ellipsis">
+              {props?.content}
+              {link && (
+                <div className="mt-10">
+                  <PreviewLink link={link[0]} />
+                </div>
+              )}
+            </div>
 
             <div className="mt-5 flex flex-col gap-3">
               <div className="flex gap-3.5">

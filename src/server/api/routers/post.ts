@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { getLinkPreview, getPreviewFromContent } from "link-preview-js";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -8,6 +9,19 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { commentLikes, comments, postLikes, posts } from "~/server/db/schema";
+
+type LinkData = {
+  url: string;
+  title: string;
+  siteName: string;
+  description: string;
+  mediaType: string;
+  contentType: string;
+  images: string[];
+  videos: string[];
+  favicons: string[];
+  charset: string;
+};
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -78,20 +92,6 @@ export const postRouter = createTRPCRouter({
     }),
 
   getById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const post = await ctx.db.query.posts.findMany({
-        where: eq(posts.id, input.id),
-        with: { postAuthor: true },
-        limit: 100,
-        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-      });
-      if (post.length === 0)
-        throw new TRPCError({ code: "NOT_FOUND", message: "Post not found" });
-      return post[0];
-    }),
-
-  getFullPostById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const post = await ctx.db.query.posts.findMany({
@@ -315,5 +315,13 @@ export const postRouter = createTRPCRouter({
           })
           .where(eq(comments.id, input.commentId));
       }
+    }),
+
+  getLinkData: publicProcedure
+    .input(z.object({ link: z.string() }))
+    .query(async ({ input }) => {
+      //@ts-ignore
+      const data: LinkData = await getLinkPreview(input.link);
+      return data;
     }),
 });

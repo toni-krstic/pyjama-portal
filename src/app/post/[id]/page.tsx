@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SinglePostPage({ params }: Props) {
   const id = params.id;
-  const data = await api.post.getFullPostById.query({ id });
+  const data = await api.post.getById.query({ id });
 
   if (!data) return null;
 

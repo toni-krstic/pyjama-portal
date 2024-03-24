@@ -16,7 +16,7 @@ export const CreateComment = (props: {
   isComment: boolean;
 }) => {
   const { id, parentCommentId, isComment } = props;
-  const { data, isLoading } = api.post.getFullPostById.useQuery({ id });
+  const { data, isLoading } = api.post.getById.useQuery({ id });
 
   if (isLoading) return <LoadingPage />;
   if (!data) return null;

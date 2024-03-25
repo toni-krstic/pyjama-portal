@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ilike, or } from "drizzle-orm";
 import { z } from "zod";
 
 import {
@@ -109,6 +109,20 @@ export const profileRouter = createTRPCRouter({
       });
 
       return user;
+    }),
+
+  search: publicProcedure
+    .input(z.object({ searchTerm: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.db.query.users.findMany({
+        where: or(
+          ilike(users.username, input.searchTerm),
+          ilike(users.firstName, input.searchTerm),
+          ilike(users.lastName, input.searchTerm),
+        ),
+      });
+
+      return result;
     }),
 
   follow: privateProcedure

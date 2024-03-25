@@ -11,7 +11,7 @@ export default function LinkPreview(params: { url: string }) {
     <Link
       href={params.url}
       target="_blank"
-      className="flex  h-[200px] cursor-pointer items-center gap-3 border-[2px]  bg-slate-800 text-left"
+      className="flex  h-[160px] cursor-pointer items-center gap-3 border-[2px]  bg-slate-800 text-left"
       style={{
         textDecoration: "none",
       }}
@@ -20,11 +20,11 @@ export default function LinkPreview(params: { url: string }) {
         <img
           src={data.image}
           alt="Link Preview"
-          className="m-0 h-full w-[240px] object-cover"
+          className="m-0 h-full object-cover"
         />
       </div>
       <div className="w-[60%] p-4">
-        <h3 className="mb-2 font-bold leading-[2rem] ">{data.title}</h3>
+        <h3 className="mb-2 text-sm font-bold">{data.title}</h3>
         <p className="mb-2  line-clamp-3 text-sm ">{data.description}</p>
       </div>
     </Link>

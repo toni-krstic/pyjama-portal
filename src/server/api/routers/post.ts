@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { JSDOM } from "jsdom";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { z } from "zod";
+import { string, z } from "zod";
 
 import {
   createTRPCRouter,
@@ -157,6 +157,31 @@ export const postRouter = createTRPCRouter({
         content: input.content,
         authorId,
       });
+    }),
+
+  edit: privateProcedure
+    .input(z.object({ content: z.string().min(1).max(256), id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.currentUser.userId;
+      const [post] = await ctx.db
+        .select()
+        .from(posts)
+        .where(eq(posts.id, input.id));
+      if (post?.authorId === authorId)
+        await ctx.db
+          .update(posts)
+          .set({ content: input.content })
+          .where(eq(posts.id, input.id));
+    }),
+
+  delete: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(postLikes).where(eq(postLikes.postId, input.id));
+      await ctx.db
+        .delete(comments)
+        .where(eq(comments.originalPostId, input.id));
+      await ctx.db.delete(posts).where(eq(posts.id, input.id));
     }),
 
   comment: privateProcedure

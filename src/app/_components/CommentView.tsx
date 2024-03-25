@@ -90,10 +90,10 @@ export const CommentView = (props: Comment) => {
               ).fromNow()}`}</span>
             </div>
 
-            <div className="text-small-regular text-light-2 overflow-none mt-2 text-ellipsis">
-              {props?.content}
+            <div className="mt-2">
+              <p className="break-all text-sm">{props?.content}</p>
               {link && (
-                <div className="mt-10">
+                <div className="mt-4">
                   <LinkPreview url={link[0]} />
                 </div>
               )}

@@ -312,6 +312,7 @@ export const postRouter = createTRPCRouter({
         const html = await response.text();
         const dom = new JSDOM(html);
         const doc = dom.window.document;
+
         const metaTags = Array.from(doc.querySelectorAll("meta")).reduce(
           (tags: Record<string, string>, meta) => {
             const name =
@@ -330,13 +331,14 @@ export const postRouter = createTRPCRouter({
         );
 
         return {
-          title: doc.title ?? metaTags["og:title"] ?? metaTags["twitter:title"],
+          title: metaTags["og:title"] ?? metaTags["twitter:title"] ?? doc.title,
           description:
-            metaTags.description ??
             metaTags["og:description"] ??
-            metaTags["twitter:description"],
+            metaTags["twitter:description"] ??
+            metaTags.description,
           image:
-            metaTags.image ?? metaTags["og:image"] ?? metaTags["twitter:image"],
+            metaTags["og:image"] ?? metaTags["twitter:image"] ?? metaTags.image,
+          mediaType: metaTags["og:type"],
         };
       } catch (error) {
         console.error("Error fetching Open Graph details", error);

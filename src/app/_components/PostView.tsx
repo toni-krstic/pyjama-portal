@@ -50,8 +50,8 @@ export const PostView = (props: fullPost) => {
     },
   });
   return (
-    <article className="flex w-full flex-col rounded-xl bg-slate-800 p-7">
-      <div className="flex items-start justify-between">
+    <article className="flex w-full flex-col overflow-hidden rounded-xl bg-slate-800 p-7">
+      <div className="flex w-full items-start justify-between ">
         <div className="flex w-full flex-1 flex-row gap-4">
           <div className="flex flex-col items-center">
             <Link
@@ -84,8 +84,8 @@ export const PostView = (props: fullPost) => {
               ).fromNow()}`}</span>
             </div>
 
-            <div className="text-small-regular text-light-2 overflow-none mt-2 text-ellipsis">
-              {props?.content}
+            <div className="mt-2">
+              <p className="break-all">{props?.content}</p>
               {link && (
                 <div className="mt-10">
                   <LinkPreview url={link[0]} />

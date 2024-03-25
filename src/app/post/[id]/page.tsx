@@ -25,7 +25,7 @@ export default async function SinglePostPage({ params }: Props) {
   if (!data) return null;
 
   return (
-    <section className="flex h-full max-w-xl flex-col">
+    <section className="flex h-full max-w-xl flex-col p-8">
       <div>
         <PostView {...data} />
       </div>

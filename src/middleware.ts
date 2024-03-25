@@ -8,6 +8,7 @@ export default authMiddleware({
     "/api/trpc/profile.create",
     "/api/trpc/profile.update",
     "/api/trpc/profile.delete",
+    "/api/trpc/profile.getUserById,post.getAll",
     "/api/webhook/clerk",
   ],
 });

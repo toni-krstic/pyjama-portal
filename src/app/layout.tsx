@@ -7,6 +7,8 @@ import { TRPCReactProvider } from "~/trpc/react";
 
 import { Toaster } from "./_components/ui/toaster";
 import { Modal } from "./_components/Modal";
+import { LeftSidebar } from "./_components/LeftSidebar";
+import { Bottombar } from "./_components/Bottombar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,9 +32,11 @@ export default function RootLayout({
         <body className={`font-sans ${inter.variable}`}>
           <TRPCReactProvider>
             <main className="flex h-screen justify-center">
+              <LeftSidebar />
               <div className="h-full  w-full overflow-y-scroll md:max-w-xl">
                 {children}
               </div>
+              <Bottombar />
             </main>
             <Modal />
           </TRPCReactProvider>

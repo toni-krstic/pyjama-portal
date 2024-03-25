@@ -30,7 +30,7 @@ export default async function ProfilePage({ params }: Props) {
 
   if (!data ?? !user) return null;
   return (
-    <>
+    <section className="px-8">
       <div className="relative h-48 bg-slate-600">
         <Image
           src={data.profileImage ?? ""}
@@ -62,6 +62,6 @@ export default async function ProfilePage({ params }: Props) {
       </div>
       <div className="mb-2 w-full"></div>
       <ProfileFeed userId={data.id} />
-    </>
+    </section>
   );
 }

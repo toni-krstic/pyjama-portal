@@ -14,7 +14,7 @@ export default async function Home() {
   if (dbUser && dbUser.onboarding) redirect(`/onboarding?id=${dbUser.id}`);
 
   return (
-    <>
+    <section className="p-8">
       <div className="my-2">
         {!dbUser && (
           <div className="flex justify-center">
@@ -25,6 +25,6 @@ export default async function Home() {
       </div>
       {dbUser && <ChooseFeed {...dbUser} />}
       {!dbUser && <Feed />}
-    </>
+    </section>
   );
 }

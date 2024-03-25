@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { getLinkPreview } from "link-preview-js";
+import { JSDOM } from "jsdom";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -308,11 +308,38 @@ export const postRouter = createTRPCRouter({
     .input(z.object({ link: z.string() }))
     .query(async ({ input }) => {
       try {
-        const data = await getLinkPreview(input.link);
-        return data;
-      } catch (err) {
-        console.log(err);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const response = await fetch(input.link);
+        const html = await response.text();
+        const dom = new JSDOM(html);
+        const doc = dom.window.document;
+        const metaTags = Array.from(doc.querySelectorAll("meta")).reduce(
+          (tags: Record<string, string>, meta) => {
+            const name =
+              meta.getAttribute("name") ??
+              meta.getAttribute("property") ??
+              meta.getAttribute("itemprop");
+            const content = meta.getAttribute("content");
+
+            if (name && content) {
+              tags[name] = content;
+            }
+
+            return tags;
+          },
+          {},
+        );
+
+        return {
+          title: doc.title ?? metaTags["og:title"] ?? metaTags["twitter:title"],
+          description:
+            metaTags.description ??
+            metaTags["og:description"] ??
+            metaTags["twitter:description"],
+          image:
+            metaTags.image ?? metaTags["og:image"] ?? metaTags["twitter:image"],
+        };
+      } catch (error) {
+        console.error("Error fetching Open Graph details", error);
       }
     }),
 });

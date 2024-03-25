@@ -12,7 +12,7 @@ import { api } from "~/trpc/react";
 import { useUser } from "@clerk/nextjs";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
-import { PreviewLink } from "./PreviewLink";
+import LinkPreview from "./LinkPreview";
 
 dayjs.extend(relativeTime);
 
@@ -86,11 +86,11 @@ export const PostView = (props: fullPost) => {
 
             <div className="text-small-regular text-light-2 overflow-none mt-2 text-ellipsis">
               {props?.content}
-              {/* {link && (
+              {link && (
                 <div className="mt-10">
-                  <PreviewLink link={link[0]} />
+                  <LinkPreview url={link[0]} />
                 </div>
-              )} */}
+              )}
             </div>
 
             <div className="mt-5 flex flex-col gap-3">

@@ -1,5 +1,4 @@
 import { TRPCError } from "@trpc/server";
-import { resolveTxt } from "dns";
 import { and, eq, ilike, or } from "drizzle-orm";
 import { z } from "zod";
 
@@ -131,7 +130,13 @@ export const profileRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const userPosts = await ctx.db.query.posts.findMany({
         columns: {},
-        with: { comments: true, likes: true, shares: true },
+        with: {
+          comments: {
+            orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+          },
+          likes: { orderBy: (likes, { desc }) => [desc(likes.createdAt)] },
+          shares: { orderBy: (shares, { desc }) => [desc(shares.createdAt)] },
+        },
         where: eq(posts.authorId, input.id),
         orderBy: (posts, { desc }) => [desc(posts.createdAt)],
       });

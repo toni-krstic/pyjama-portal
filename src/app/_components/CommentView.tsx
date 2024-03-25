@@ -12,7 +12,7 @@ import { api } from "~/trpc/react";
 import { useUser } from "@clerk/nextjs";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
-import { PreviewLink } from "./PreviewLink";
+import LinkPreview from "./LinkPreview";
 
 dayjs.extend(relativeTime);
 type Comment = RouterOutputs["post"]["getCommentById"];
@@ -92,11 +92,11 @@ export const CommentView = (props: Comment) => {
 
             <div className="text-small-regular text-light-2 overflow-none mt-2 text-ellipsis">
               {props?.content}
-              {/* {link && (
+              {link && (
                 <div className="mt-10">
-                  <PreviewLink link={link[0]} />
+                  <LinkPreview url={link[0]} />
                 </div>
-              )} */}
+              )}
             </div>
 
             <div className="mb-10 mt-5 flex flex-col gap-3">

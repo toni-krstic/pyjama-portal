@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { resolveTxt } from "dns";
 import { and, eq, ilike, or } from "drizzle-orm";
 import { z } from "zod";
 
@@ -7,7 +8,7 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { followers, users } from "~/server/db/schema";
+import { followers, posts, users } from "~/server/db/schema";
 
 export const profileRouter = createTRPCRouter({
   create: publicProcedure
@@ -123,6 +124,18 @@ export const profileRouter = createTRPCRouter({
       });
 
       return result;
+    }),
+
+  getNotifications: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const userPosts = await ctx.db.query.posts.findMany({
+        columns: {},
+        with: { comments: true, likes: true, shares: true },
+        where: eq(posts.authorId, input.id),
+        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      });
+      return userPosts;
     }),
 
   follow: privateProcedure

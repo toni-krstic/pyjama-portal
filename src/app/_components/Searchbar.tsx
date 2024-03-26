@@ -23,14 +23,14 @@ function Searchbar() {
   }, [search]);
 
   return (
-    <div className="flex items-center gap-1 rounded-lg px-4 py-2">
+    <div className="flex w-full items-center gap-1 rounded-lg bg-slate-800 px-4 py-2">
       <IoSearchSharp width={24} height={24} />
       <input
         id="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search"
-        className="border-none bg-slate-800 outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+        className="border-none bg-transparent outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
       />
     </div>
   );

@@ -11,7 +11,7 @@ export const NotificationCard = async (props: {
 }) => {
   const data = await api.profile.getUserById.query({ id: props.id });
   return (
-    <article className="flex items-center gap-2 rounded-md px-7 py-4">
+    <article className="flex flex-col items-center gap-1 rounded-md px-7 py-4 sm:flex-row">
       <Image
         src={data?.profileImage ?? ""}
         alt="user_logo"
@@ -19,9 +19,10 @@ export const NotificationCard = async (props: {
         height={20}
         className="rounded-full object-cover"
       />
-      <p className="">
-        <span className="mr-1">{`@${data?.username}`}</span> {props.text}
-        <span className="ml-2 text-xs font-thin">{`${dayjs(
+      <span className="mr-1">{`@${data?.username}`}</span>
+      <p className="text-sm">
+        {props.text}
+        <span className="ml-1 text-xs font-thin">{`${dayjs(
           props?.createdAt,
         ).fromNow()}`}</span>
       </p>

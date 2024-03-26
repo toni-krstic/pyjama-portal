@@ -116,7 +116,13 @@ export const PostView = (props: fullPost) => {
                   </PopoverTrigger>
                   <PopoverContent>
                     <div className="flex w-full flex-col items-start gap-2">
-                      <button>Edit</button>
+                      <button
+                        onClick={() =>
+                          router.push(`?edit=true&id=${props?.id}`)
+                        }
+                      >
+                        Edit
+                      </button>
                       <button
                         onClick={() =>
                           deletePost.mutate({ id: props?.id ?? "" })

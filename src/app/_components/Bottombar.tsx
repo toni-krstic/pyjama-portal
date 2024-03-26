@@ -14,7 +14,7 @@ export const Bottombar = () => {
   const { data } = api.profile.getUserById.useQuery({ id: userId ?? "" });
 
   return (
-    <section className="fixed bottom-0 z-10 w-full rounded-t-3xl p-4 backdrop-blur-lg md:hidden">
+    <section className="fixed bottom-0 z-10 w-full rounded-t-3xl bg-slate-800/50 p-4 backdrop-blur-lg md:hidden">
       <div className="flex items-center justify-between gap-3">
         <Link
           href="/"

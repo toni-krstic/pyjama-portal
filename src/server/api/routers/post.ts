@@ -1,14 +1,20 @@
 import { TRPCError } from "@trpc/server";
 import { JSDOM } from "jsdom";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { string, z } from "zod";
+import { z } from "zod";
 
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { commentLikes, comments, postLikes, posts } from "~/server/db/schema";
+import {
+  commentLikes,
+  comments,
+  postLikes,
+  posts,
+  shares,
+} from "~/server/db/schema";
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -181,6 +187,7 @@ export const postRouter = createTRPCRouter({
       await ctx.db
         .delete(comments)
         .where(eq(comments.originalPostId, input.id));
+      await ctx.db.delete(shares).where(eq(shares.originalPostId, input.id));
       await ctx.db.delete(posts).where(eq(posts.id, input.id));
     }),
 
@@ -206,6 +213,31 @@ export const postRouter = createTRPCRouter({
         .update(posts)
         .set({
           numComments: sql`${posts.numComments} + 1`,
+        })
+        .where(eq(posts.id, input.originalPostId));
+    }),
+
+  share: privateProcedure
+    .input(
+      z.object({
+        authorId: z.string(),
+        commentId: z.string(),
+        originalPostId: z.string(),
+        content: z.string().min(1).max(256),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(shares).values({
+        commentId: input.commentId === "" ? null : input.commentId,
+        originalPostId: input.originalPostId,
+        content: input.content,
+        authorId: input.authorId,
+      });
+
+      await ctx.db
+        .update(posts)
+        .set({
+          numShares: sql`${posts.numShares} + 1`,
         })
         .where(eq(posts.id, input.originalPostId));
     }),

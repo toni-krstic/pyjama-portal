@@ -44,6 +44,7 @@ export function CreatePost() {
           appearance={{
             elements: {
               userButtonAvatarBox: "h-14 w-14",
+              userButtonPopoverCard: "bg-slate-800",
             },
           }}
         />

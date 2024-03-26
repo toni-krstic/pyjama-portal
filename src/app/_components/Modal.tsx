@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { CreateComment } from "./CreateComment";
 import { LoadingPage } from "./Loader";
 import { EditPost } from "./EditPost";
+import { SharePost } from "./SharePost";
 
 export const Modal = () => {
   const searchParams = useSearchParams();
@@ -11,8 +12,9 @@ export const Modal = () => {
   const parentCommentId = searchParams.get("parentCommentId");
   const isComment = searchParams.get("isComment");
   const edit = searchParams.get("edit");
-
-  if ((comment && !id) ?? (edit && !id)) return <LoadingPage />;
+  const share = searchParams.get("share");
+  if ((comment && !id) ?? (edit && !id) ?? (share && !id))
+    return <LoadingPage />;
 
   return (
     <>
@@ -28,6 +30,11 @@ export const Modal = () => {
       {edit && (
         <dialog className="fixed left-0 top-0 z-50 flex h-full w-full flex-col items-center justify-center overflow-auto bg-black bg-opacity-50 p-8 text-slate-100 backdrop-blur">
           <EditPost id={id ?? ""} isModal={true} />{" "}
+        </dialog>
+      )}
+      {share && (
+        <dialog className="fixed left-0 top-0 z-50 flex h-full w-full flex-col items-center justify-center overflow-auto bg-black bg-opacity-50 p-8 text-slate-100 backdrop-blur">
+          <SharePost id={id ?? ""} isModal={true} />{" "}
         </dialog>
       )}
     </>

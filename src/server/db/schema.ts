@@ -142,6 +142,8 @@ export const shares = createTable("share", {
     .references(() => users.id),
   content: varchar("content", { length: 256 }),
   numLikes: integer("numLikes").default(0),
+  numComments: integer("numComments").default(0),
+  numShares: integer("numShares").default(0),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

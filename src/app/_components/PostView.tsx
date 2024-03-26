@@ -162,6 +162,9 @@ export const PostView = (props: fullPost) => {
                 <Link href={`?comment=true&id=${props?.id}`}>
                   <FaRegComment className="hover:text-blue-500" />
                 </Link>
+                <Link href={`?share=true&id=${props?.id}`}>
+                  <FaRegShareSquare className="hover:text-green-500" />
+                </Link>
               </div>
             </div>
           </div>

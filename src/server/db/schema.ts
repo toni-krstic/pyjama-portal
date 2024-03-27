@@ -94,6 +94,9 @@ export const postRelations = relations(posts, ({ many, one }) => ({
 
 export const comments = createTable("comment", {
   id: uuid("id").primaryKey().defaultRandom(),
+  originialCommentId: uuid("originalCommentId").references(
+    (): AnyPgColumn => comments.id,
+  ),
   parentCommentId: uuid("parentCommentId").references(
     (): AnyPgColumn => comments.id,
   ),

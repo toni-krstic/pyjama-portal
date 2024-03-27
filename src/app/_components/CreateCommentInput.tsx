@@ -8,10 +8,11 @@ import Image from "next/image";
 
 export const CreateCommentInput = (props: {
   originalPostId: string;
+  originalCommentId: string;
   parentCommentId: string;
   isModal: boolean;
 }) => {
-  const { originalPostId, parentCommentId, isModal } = props;
+  const { originalPostId, originalCommentId, parentCommentId, isModal } = props;
   const [content, setContent] = useState("");
   const { toast } = useToast();
   const utils = api.useUtils();
@@ -51,6 +52,7 @@ export const CreateCommentInput = (props: {
         e.preventDefault();
         createComment.mutate({
           content,
+          originalCommentId: originalCommentId ?? "",
           originalPostId: originalPostId ?? "",
           authorId: user?.id ?? "",
           parentCommentId: parentCommentId ?? "",

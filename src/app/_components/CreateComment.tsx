@@ -12,10 +12,11 @@ dayjs.extend(relativeTime);
 
 export const CreateComment = (props: {
   id: string;
+  originalCommentId: string;
   parentCommentId: string;
   isComment: boolean;
 }) => {
-  const { id, parentCommentId, isComment } = props;
+  const { id, originalCommentId, parentCommentId, isComment } = props;
   const { data, isLoading } = api.post.getById.useQuery({ id });
 
   if (isLoading) return <LoadingPage />;
@@ -37,6 +38,7 @@ export const CreateComment = (props: {
         <CreateCommentInput
           originalPostId={id}
           parentCommentId={parentCommentId}
+          originalCommentId={originalCommentId}
           isModal={true}
         />
       </div>

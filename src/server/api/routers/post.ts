@@ -178,6 +178,7 @@ export const postRouter = createTRPCRouter({
       z.object({
         authorId: z.string(),
         parentCommentId: z.string(),
+        originalCommentId: z.string(),
         originalPostId: z.string(),
         content: z.string().min(1).max(256),
       }),
@@ -186,6 +187,8 @@ export const postRouter = createTRPCRouter({
       await ctx.db.insert(comments).values({
         parentCommentId:
           input.parentCommentId === "" ? null : input.parentCommentId,
+        originialCommentId:
+          input.originalCommentId === "" ? null : input.originalCommentId,
         originalPostId: input.originalPostId,
         content: input.content,
         authorId: input.authorId,
@@ -197,6 +200,34 @@ export const postRouter = createTRPCRouter({
           numComments: sql`${posts.numComments} + 1`,
         })
         .where(eq(posts.id, input.originalPostId));
+    }),
+
+  editComment: privateProcedure
+    .input(z.object({ content: z.string().min(1).max(256), id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.currentUser.userId;
+      const [comment] = await ctx.db
+        .select()
+        .from(comments)
+        .where(eq(comments.id, input.id));
+      if (comment?.authorId === authorId)
+        await ctx.db
+          .update(comments)
+          .set({ content: input.content })
+          .where(eq(comments.id, input.id));
+    }),
+
+  deleteComment: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .delete(commentLikes)
+        .where(eq(commentLikes.commentId, input.id));
+      await ctx.db
+        .delete(comments)
+        .where(eq(comments.originialCommentId, input.id));
+
+      await ctx.db.delete(comments).where(eq(comments.id, input.id));
     }),
 
   share: privateProcedure

@@ -13,6 +13,8 @@ import { useUser } from "@clerk/nextjs";
 import { useToast } from "./ui/use-toast";
 import { useRouter } from "next/navigation";
 import LinkPreview from "./LinkPreview";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { BsThreeDots } from "react-icons/bs";
 
 dayjs.extend(relativeTime);
 type Comment = RouterOutputs["post"]["getCommentById"];
@@ -28,6 +30,31 @@ export const CommentView = (props: Comment) => {
   const link = props?.content?.match(/\b(?:https?|ftp):\/\/\S+/gi) ?? "";
 
   const likeComment = api.post.likeComment.useMutation({
+    onSuccess: () => {
+      void utils.post.getAll.invalidate();
+      void utils.post.getCommentById.invalidate();
+      void utils.post.getByUserId.invalidate();
+      void utils.post.getById.invalidate();
+      void utils.post.getFollowing.invalidate();
+      router.refresh();
+    },
+    onError: (err) => {
+      const errorMessage = err.data?.zodError?.fieldErrors.content;
+      if (errorMessage) {
+        toast({
+          title: "Error",
+          description: errorMessage[0],
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Something went wrong, please try again",
+        });
+      }
+    },
+  });
+
+  const deleteComment = api.post.deleteComment.useMutation({
     onSuccess: () => {
       void utils.post.getAll.invalidate();
       void utils.post.getCommentById.invalidate();
@@ -74,17 +101,44 @@ export const CommentView = (props: Comment) => {
 
           <div className="flex w-full flex-col">
             <div className="flex flex-col">
-              <Link
-                href={`/@${props?.commentAuthor?.username}`}
-                className="w-fit"
-              >
-                <h4 className="flex cursor-pointer items-center gap-1">
-                  {`${props?.commentAuthor?.firstName} ${props?.commentAuthor?.lastName}`}
-                  <span className="text-xs font-thin">
-                    {`· @${props?.commentAuthor?.username}`}
-                  </span>
-                </h4>
-              </Link>
+              <div className="flex w-full justify-between">
+                <Link
+                  href={`/@${props?.commentAuthor?.username}`}
+                  className="w-fit"
+                >
+                  <h4 className="flex cursor-pointer items-center gap-1">
+                    {`${props?.commentAuthor?.firstName} ${props?.commentAuthor?.lastName}`}
+                    <span className="text-xs font-thin">
+                      {`· @${props?.commentAuthor?.username}`}
+                    </span>
+                  </h4>
+                </Link>
+                <Popover>
+                  <PopoverTrigger>
+                    <BsThreeDots />
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div className="flex w-full flex-col items-start gap-2">
+                      <button
+                        onClick={() =>
+                          router.push(
+                            `?edit=true&id=${props?.id}&isComment=true`,
+                          )
+                        }
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() =>
+                          deleteComment.mutate({ id: props?.id ?? "" })
+                        }
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
               <span className="text-xs font-thin">{`${dayjs(
                 props?.createdAt,
               ).fromNow()}`}</span>
@@ -111,7 +165,7 @@ export const CommentView = (props: Comment) => {
                   }
                 />
                 <Link
-                  href={`?comment=true&id=${props?.originalPostId}&parentCommentId=${props?.id}&isComment=true`}
+                  href={`?comment=true&id=${props?.originalPostId}&parentCommentId=${props?.id}&originalCommentId=${props?.parentCommentId ? props.originialCommentId : props?.id}&isComment=true`}
                 >
                   <FaRegComment className="hover:text-blue-500" />
                 </Link>

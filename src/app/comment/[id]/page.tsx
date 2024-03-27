@@ -32,6 +32,7 @@ export default async function SingleCommentPage({ params }: Props) {
       <div className="mt-7">
         <CreateCommentInput
           originalPostId={data.originalPostId}
+          originalCommentId={data.originialCommentId ?? data.id}
           parentCommentId={data.id}
           isModal={false}
         />

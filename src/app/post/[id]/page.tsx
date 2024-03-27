@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CommentView } from "~/app/_components/CommentView";
 import { CreateCommentInput } from "~/app/_components/CreateCommentInput";
 import { PostView } from "~/app/_components/PostView";
+import { SharePostView } from "~/app/_components/SharePostView";
 import { api } from "~/trpc/server";
 
 type Props = {
@@ -27,7 +28,7 @@ export default async function SinglePostPage({ params }: Props) {
   return (
     <section className="flex h-full max-w-xl flex-col p-8">
       <div>
-        <PostView {...data} />
+        {data.isRepost ? <SharePostView {...data} /> : <PostView {...data} />}
       </div>
 
       <div className="mt-7">

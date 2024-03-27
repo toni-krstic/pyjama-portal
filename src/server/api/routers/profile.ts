@@ -135,7 +135,6 @@ export const profileRouter = createTRPCRouter({
             orderBy: (comments, { desc }) => [desc(comments.createdAt)],
           },
           likes: { orderBy: (likes, { desc }) => [desc(likes.createdAt)] },
-          shares: { orderBy: (shares, { desc }) => [desc(shares.createdAt)] },
         },
         where: eq(posts.authorId, input.id),
         orderBy: (posts, { desc }) => [desc(posts.createdAt)],

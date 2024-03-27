@@ -4,6 +4,7 @@ import { api } from "~/trpc/react";
 import { LoadingPage } from "./Loader";
 import { PostView } from "./PostView";
 import type { RouterOutputs } from "~/trpc/shared";
+import { SharePostView } from "./SharePostView";
 
 type userWithFollowers = RouterOutputs["profile"]["getUserById"];
 export function Following(props: userWithFollowers) {
@@ -16,9 +17,13 @@ export function Following(props: userWithFollowers) {
 
   return (
     <div className="flex flex-col gap-2">
-      {data.map((fullPost) => (
-        <PostView {...fullPost} key={fullPost.id} />
-      ))}
+      {data.map((fullPost) =>
+        fullPost.isRepost ? (
+          <SharePostView {...fullPost} key={fullPost.id} />
+        ) : (
+          <PostView {...fullPost} key={fullPost.id} />
+        ),
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { api } from "~/trpc/react";
 import { LoadingPage } from "./Loader";
 import { PostView } from "./PostView";
+import { SharePostView } from "./SharePostView";
 
 export function Feed() {
   const { data, isLoading } = api.post.getAll.useQuery();
@@ -12,9 +13,13 @@ export function Feed() {
 
   return (
     <div className="flex flex-col gap-2">
-      {data.map((fullPost) => (
-        <PostView {...fullPost} key={fullPost.id} />
-      ))}
+      {data.map((fullPost) =>
+        fullPost.isRepost ? (
+          <SharePostView {...fullPost} key={fullPost.id} />
+        ) : (
+          <PostView {...fullPost} key={fullPost.id} />
+        ),
+      )}
     </div>
   );
 }

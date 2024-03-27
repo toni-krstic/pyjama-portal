@@ -8,13 +8,7 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import {
-  commentLikes,
-  comments,
-  postLikes,
-  posts,
-  shares,
-} from "~/server/db/schema";
+import { commentLikes, comments, postLikes, posts } from "~/server/db/schema";
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -29,19 +23,16 @@ export const postRouter = createTRPCRouter({
                 commentAuthor: true,
                 childComments: true,
                 commentLikes: true,
-                commentShares: true,
               },
               orderBy: (childComments, { desc }) => [
                 desc(childComments.createdAt),
               ],
             },
             commentLikes: true,
-            commentShares: true,
           },
           orderBy: (comments, { desc }) => [desc(comments.createdAt)],
         },
         likes: true,
-        shares: true,
       },
       limit: 100,
       orderBy: (posts, { desc }) => [desc(posts.createdAt)],
@@ -64,19 +55,16 @@ export const postRouter = createTRPCRouter({
                   commentAuthor: true,
                   childComments: true,
                   commentLikes: true,
-                  commentShares: true,
                 },
                 orderBy: (childComments, { desc }) => [
                   desc(childComments.createdAt),
                 ],
               },
               commentLikes: true,
-              commentShares: true,
             },
             orderBy: (comments, { desc }) => [desc(comments.createdAt)],
           },
           likes: true,
-          shares: true,
         },
         limit: 100,
         orderBy: (posts, { desc }) => [desc(posts.createdAt)],
@@ -99,19 +87,16 @@ export const postRouter = createTRPCRouter({
                   commentAuthor: true,
                   childComments: true,
                   commentLikes: true,
-                  commentShares: true,
                 },
                 orderBy: (childComments, { desc }) => [
                   desc(childComments.createdAt),
                 ],
               },
               commentLikes: true,
-              commentShares: true,
             },
             orderBy: (comments, { desc }) => [desc(comments.createdAt)],
           },
           likes: true,
-          shares: true,
         },
         limit: 100,
         orderBy: (posts, { desc }) => [desc(posts.createdAt)],
@@ -136,19 +121,16 @@ export const postRouter = createTRPCRouter({
                   commentAuthor: true,
                   childComments: true,
                   commentLikes: true,
-                  commentShares: true,
                 },
                 orderBy: (childComments, { desc }) => [
                   desc(childComments.createdAt),
                 ],
               },
               commentLikes: true,
-              commentShares: true,
             },
             orderBy: (comments, { desc }) => [desc(comments.createdAt)],
           },
           likes: true,
-          shares: true,
         },
         limit: 100,
         orderBy: (posts, { desc }) => [desc(posts.createdAt)],
@@ -187,7 +169,7 @@ export const postRouter = createTRPCRouter({
       await ctx.db
         .delete(comments)
         .where(eq(comments.originalPostId, input.id));
-      await ctx.db.delete(shares).where(eq(shares.originalPostId, input.id));
+
       await ctx.db.delete(posts).where(eq(posts.id, input.id));
     }),
 
@@ -227,11 +209,12 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(shares).values({
+      await ctx.db.insert(posts).values({
         commentId: input.commentId === "" ? null : input.commentId,
         originalPostId: input.originalPostId,
         content: input.content,
         authorId: input.authorId,
+        isRepost: true,
       });
 
       await ctx.db
@@ -254,14 +237,12 @@ export const postRouter = createTRPCRouter({
               commentAuthor: true,
               childComments: true,
               commentLikes: true,
-              commentShares: true,
             },
             orderBy: (childComments, { desc }) => [
               desc(childComments.createdAt),
             ],
           },
           commentLikes: true,
-          commentShares: true,
         },
       });
       return comment;

@@ -38,7 +38,6 @@ export const usersRelations = relations(users, ({ many }) => ({
   following: many(followers, { relationName: "following" }),
   posts: many(posts, { relationName: "posts" }),
   comments: many(comments, { relationName: "comments" }),
-  shares: many(shares, { relationName: "shares" }),
   postsLikes: many(postLikes, { relationName: "postsLikes" }),
   commentsLikes: many(commentLikes, { relationName: "commentsLikes" }),
 }));
@@ -67,11 +66,16 @@ export const followersRelations = relations(followers, ({ one }) => ({
 
 export const posts = createTable("post", {
   id: uuid("id").primaryKey().defaultRandom(),
+  originalPostId: uuid("parentCommentId").references(
+    (): AnyPgColumn => posts.id,
+  ),
+  commentId: uuid("commentId").references((): AnyPgColumn => comments.id),
   authorId: varchar("authorId", { length: 256 }).references(() => users.id),
   content: varchar("content", { length: 256 }),
   numComments: integer("numComments").default(0),
   numLikes: integer("numLikes").default(0),
   numShares: integer("numShares").default(0),
+  isRepost: boolean("isRepost").default(false),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -81,7 +85,6 @@ export const posts = createTable("post", {
 export const postRelations = relations(posts, ({ many, one }) => ({
   comments: many(comments, { relationName: "postComments" }),
   likes: many(postLikes, { relationName: "postLikes" }),
-  shares: many(shares, { relationName: "postShares" }),
   postAuthor: one(users, {
     fields: [posts.authorId],
     references: [users.id],
@@ -113,7 +116,6 @@ export const comments = createTable("comment", {
 export const commentsRelations = relations(comments, ({ many, one }) => ({
   childComments: many(comments, { relationName: "parentComment" }),
   commentLikes: many(commentLikes, { relationName: "commentLikes" }),
-  commentShares: many(shares, { relationName: "commentShares" }),
   commentAuthor: one(users, {
     fields: [comments.authorId],
     references: [users.id],
@@ -128,43 +130,6 @@ export const commentsRelations = relations(comments, ({ many, one }) => ({
     fields: [comments.parentCommentId],
     references: [comments.id],
     relationName: "parentComment",
-  }),
-}));
-
-export const shares = createTable("share", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  originalPostId: uuid("originalPostId")
-    .notNull()
-    .references(() => posts.id),
-  commentId: uuid("commentId").references(() => comments.id),
-  authorId: varchar("authorId", { length: 256 })
-    .notNull()
-    .references(() => users.id),
-  content: varchar("content", { length: 256 }),
-  numLikes: integer("numLikes").default(0),
-  numComments: integer("numComments").default(0),
-  numShares: integer("numShares").default(0),
-  createdAt: timestamp("created_at")
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: timestamp("updatedAt"),
-});
-
-export const shareRelations = relations(shares, ({ one }) => ({
-  originalPost: one(posts, {
-    fields: [shares.originalPostId],
-    references: [posts.id],
-    relationName: "postShares",
-  }),
-  sharedBy: one(users, {
-    fields: [shares.authorId],
-    references: [users.id],
-    relationName: "shares",
-  }),
-  comment: one(comments, {
-    fields: [shares.commentId],
-    references: [comments.id],
-    relationName: "commentShares",
   }),
 }));
 

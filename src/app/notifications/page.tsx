@@ -34,23 +34,7 @@ export default async function Notifications() {
                     ))}
                   </>
                 );
-              if (post.shares.length > 0)
-                return (
-                  <>
-                    {post.shares.map((share) => (
-                      <Link
-                        key={share.id}
-                        href={`/post/${share.originalPostId}`}
-                      >
-                        <NotificationCard
-                          id={share.authorId}
-                          text="shared your post"
-                          createdAt={share.createdAt}
-                        />
-                      </Link>
-                    ))}
-                  </>
-                );
+
               if (post.comments.length > 0)
                 return (
                   <>

@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { JSDOM } from "jsdom";
 import { and, eq, inArray, sql } from "drizzle-orm";
+import { withCursorPagination } from "drizzle-pagination";
 import { z } from "zod";
 
 import {
@@ -17,34 +18,54 @@ import {
 } from "~/server/db/schema";
 
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
-    const posts = await ctx.db.query.posts.findMany({
-      with: {
-        postAuthor: true,
-        comments: {
-          with: {
-            commentAuthor: true,
-            childComments: {
-              with: {
-                commentAuthor: true,
-                childComments: true,
-                commentLikes: true,
+  getAll: publicProcedure
+    .input(
+      z.object({
+        cursor: z.string().nullish(),
+        limit: z.number().min(1).max(50).default(5),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const data = await ctx.db.query.posts.findMany({
+        ...withCursorPagination({
+          limit: input.limit,
+          cursors: [
+            [
+              posts.createdAt,
+              "desc",
+              input.cursor ? new Date(input.cursor) : undefined,
+            ],
+          ],
+        }),
+        with: {
+          postAuthor: true,
+          comments: {
+            with: {
+              commentAuthor: true,
+              childComments: {
+                with: {
+                  commentAuthor: true,
+                  childComments: true,
+                  commentLikes: true,
+                },
+                orderBy: (childComments, { desc }) => [
+                  desc(childComments.createdAt),
+                ],
               },
-              orderBy: (childComments, { desc }) => [
-                desc(childComments.createdAt),
-              ],
+              commentLikes: true,
             },
-            commentLikes: true,
+            orderBy: (comments, { desc }) => [desc(comments.createdAt)],
           },
-          orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+          likes: true,
         },
-        likes: true,
-      },
-      limit: 100,
-      orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-    });
-    return posts;
-  }),
+      });
+      return {
+        data,
+        nextCursor: data.length
+          ? data[data.length - 1]?.createdAt.toISOString()
+          : null,
+      };
+    }),
 
   getFollowing: publicProcedure
     .input(z.object({ following: z.array(z.string()) }))

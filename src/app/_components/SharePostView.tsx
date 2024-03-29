@@ -25,6 +25,7 @@ export const SharePostView = (props: fullPost) => {
   const utils = api.useUtils();
   const router = useRouter();
   const user = useUser();
+  const isAuthor = props?.authorId === user.user?.id;
   const isLiked = props?.likes.some((like) => like.authorId === user?.user?.id);
   const link = props?.content?.match(/\b(?:https?|ftp):\/\/\S+/gi) ?? "";
 
@@ -118,29 +119,31 @@ export const SharePostView = (props: fullPost) => {
                     </span>
                   </h4>
                 </Link>
-                <Popover>
-                  <PopoverTrigger>
-                    <BsThreeDots />
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <div className="flex w-full flex-col items-start gap-2">
-                      <button
-                        onClick={() =>
-                          router.push(`?edit=true&id=${props?.id}`)
-                        }
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() =>
-                          deletePost.mutate({ id: props?.id ?? "" })
-                        }
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                {isAuthor && (
+                  <Popover>
+                    <PopoverTrigger>
+                      <BsThreeDots />
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <div className="flex w-full flex-col items-start gap-2">
+                        <button
+                          onClick={() =>
+                            router.push(`?edit=true&id=${props?.id}`)
+                          }
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            deletePost.mutate({ id: props?.id ?? "" })
+                          }
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
               <span className="text-xs font-thin">{`${dayjs(
                 props?.createdAt,

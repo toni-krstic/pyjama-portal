@@ -24,6 +24,7 @@ export const CommentView = (props: Comment) => {
   const { toast } = useToast();
   const utils = api.useUtils();
   const router = useRouter();
+  const isAuthor = props?.authorId === user.user?.id;
   const isLiked = props?.commentLikes.some(
     (like) => like.authorId === user?.user?.id,
   );
@@ -113,31 +114,33 @@ export const CommentView = (props: Comment) => {
                     </span>
                   </h4>
                 </Link>
-                <Popover>
-                  <PopoverTrigger>
-                    <BsThreeDots />
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <div className="flex w-full flex-col items-start gap-2">
-                      <button
-                        onClick={() =>
-                          router.push(
-                            `?edit=true&id=${props?.id}&isComment=true`,
-                          )
-                        }
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() =>
-                          deleteComment.mutate({ id: props?.id ?? "" })
-                        }
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                {isAuthor && (
+                  <Popover>
+                    <PopoverTrigger>
+                      <BsThreeDots />
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <div className="flex w-full flex-col items-start gap-2">
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `?edit=true&id=${props?.id}&isComment=true`,
+                            )
+                          }
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            deleteComment.mutate({ id: props?.id ?? "" })
+                          }
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
               <span className="text-xs font-thin">{`${dayjs(
                 props?.createdAt,

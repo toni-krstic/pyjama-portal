@@ -8,7 +8,13 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { commentLikes, comments, postLikes, posts } from "~/server/db/schema";
+import {
+  commentLikes,
+  comments,
+  notifications,
+  postLikes,
+  posts,
+} from "~/server/db/schema";
 
 export const postRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -169,6 +175,7 @@ export const postRouter = createTRPCRouter({
       await ctx.db
         .delete(comments)
         .where(eq(comments.originalPostId, input.id));
+      await ctx.db.delete(posts).where(eq(posts.originalPostId, input.id));
 
       await ctx.db.delete(posts).where(eq(posts.id, input.id));
     }),
@@ -200,6 +207,37 @@ export const postRouter = createTRPCRouter({
           numComments: sql`${posts.numComments} + 1`,
         })
         .where(eq(posts.id, input.originalPostId));
+
+      if (input.parentCommentId === "") {
+        const [post] = await ctx.db
+          .select()
+          .from(posts)
+          .where(eq(posts.id, input.originalPostId));
+        await ctx.db.insert(notifications).values({
+          postId: input.originalPostId,
+          userId: post?.authorId ?? "",
+          authorId: input.authorId,
+          content: "commented on your post",
+        });
+      } else {
+        const [comment] = await ctx.db
+          .select()
+          .from(comments)
+          .where(eq(comments.id, input.parentCommentId));
+        await ctx.db.insert(notifications).values({
+          commentId: input.parentCommentId,
+          userId: comment?.authorId ?? "",
+          authorId: input.authorId,
+          content: "commented on your comment",
+        });
+
+        await ctx.db
+          .update(comments)
+          .set({
+            numComments: sql`${comments.numComments} + 1`,
+          })
+          .where(eq(comments.id, input.parentCommentId));
+      }
     }),
 
   editComment: privateProcedure
@@ -220,6 +258,11 @@ export const postRouter = createTRPCRouter({
   deleteComment: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const [comment] = await ctx.db
+        .select()
+        .from(comments)
+        .where(eq(comments.id, input.id));
+
       await ctx.db
         .delete(commentLikes)
         .where(eq(commentLikes.commentId, input.id));
@@ -228,6 +271,20 @@ export const postRouter = createTRPCRouter({
         .where(eq(comments.originialCommentId, input.id));
 
       await ctx.db.delete(comments).where(eq(comments.id, input.id));
+      if (comment?.originalPostId)
+        await ctx.db
+          .update(posts)
+          .set({
+            numComments: sql`${posts.numComments} - 1`,
+          })
+          .where(eq(posts.id, comment?.originalPostId));
+      if (comment?.parentCommentId)
+        await ctx.db
+          .update(comments)
+          .set({
+            numComments: sql`${comments.numComments} - 1`,
+          })
+          .where(eq(comments.id, comment?.parentCommentId));
     }),
 
   share: privateProcedure
@@ -254,6 +311,17 @@ export const postRouter = createTRPCRouter({
           numShares: sql`${posts.numShares} + 1`,
         })
         .where(eq(posts.id, input.originalPostId));
+
+      const [post] = await ctx.db
+        .select()
+        .from(posts)
+        .where(eq(posts.id, input.originalPostId));
+      await ctx.db.insert(notifications).values({
+        postId: input.originalPostId,
+        userId: post?.authorId ?? "",
+        authorId: input.authorId,
+        content: "shared your post",
+      });
     }),
 
   getCommentById: publicProcedure
@@ -308,6 +376,16 @@ export const postRouter = createTRPCRouter({
             numLikes: sql`${posts.numLikes} + 1`,
           })
           .where(eq(posts.id, input.postId));
+        const [post] = await ctx.db
+          .select()
+          .from(posts)
+          .where(eq(posts.id, input.postId));
+        await ctx.db.insert(notifications).values({
+          postId: input.postId,
+          userId: post?.authorId ?? "",
+          authorId: input.authorId,
+          content: "liked your post",
+        });
       } else {
         await ctx.db
           .delete(postLikes)
@@ -323,6 +401,16 @@ export const postRouter = createTRPCRouter({
             numLikes: sql`${posts.numLikes} - 1`,
           })
           .where(eq(posts.id, input.postId));
+
+        await ctx.db
+          .delete(notifications)
+          .where(
+            and(
+              eq(notifications.postId, input.postId),
+              eq(notifications.authorId, input.authorId),
+              eq(notifications.content, "liked your post"),
+            ),
+          );
       }
     }),
 
@@ -344,6 +432,11 @@ export const postRouter = createTRPCRouter({
           ),
         );
 
+      const [comment] = await ctx.db
+        .select()
+        .from(comments)
+        .where(eq(comments.id, input.commentId));
+
       if (like.length === 0) {
         await ctx.db.insert(commentLikes).values({
           commentId: input.commentId,
@@ -355,6 +448,13 @@ export const postRouter = createTRPCRouter({
             numLikes: sql`${comments.numLikes} + 1`,
           })
           .where(eq(comments.id, input.commentId));
+
+        await ctx.db.insert(notifications).values({
+          commentId: input.commentId,
+          userId: comment?.authorId ?? "",
+          authorId: input.authorId,
+          content: "liked your comment",
+        });
       } else {
         await ctx.db
           .delete(commentLikes)
@@ -370,6 +470,16 @@ export const postRouter = createTRPCRouter({
             numLikes: sql`${comments.numLikes} - 1`,
           })
           .where(eq(comments.id, input.commentId));
+
+        await ctx.db
+          .delete(notifications)
+          .where(
+            and(
+              eq(notifications.commentId, input.commentId),
+              eq(notifications.authorId, input.authorId),
+              eq(notifications.content, "liked your comment"),
+            ),
+          );
       }
     }),
 

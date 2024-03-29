@@ -40,15 +40,16 @@ export const usersRelations = relations(users, ({ many }) => ({
   comments: many(comments, { relationName: "comments" }),
   postsLikes: many(postLikes, { relationName: "postsLikes" }),
   commentsLikes: many(commentLikes, { relationName: "commentsLikes" }),
+  notifications: many(notifications, { relationName: "notificationUser" }),
 }));
 
 export const followers = createTable("follower", {
   followerId: varchar("followerId", { length: 256 })
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   followingId: varchar("followingId", { length: 256 })
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
 });
 
 export const followersRelations = relations(followers, ({ one }) => ({
@@ -68,9 +69,14 @@ export const posts = createTable("post", {
   id: uuid("id").primaryKey().defaultRandom(),
   originalPostId: uuid("parentCommentId").references(
     (): AnyPgColumn => posts.id,
+    { onDelete: "cascade" },
   ),
-  commentId: uuid("commentId").references((): AnyPgColumn => comments.id),
-  authorId: varchar("authorId", { length: 256 }).references(() => users.id),
+  commentId: uuid("commentId").references((): AnyPgColumn => comments.id, {
+    onDelete: "cascade",
+  }),
+  authorId: varchar("authorId", { length: 256 }).references(() => users.id, {
+    onDelete: "cascade",
+  }),
   content: varchar("content", { length: 256 }),
   numComments: integer("numComments").default(0),
   numLikes: integer("numLikes").default(0),
@@ -85,6 +91,7 @@ export const posts = createTable("post", {
 export const postRelations = relations(posts, ({ many, one }) => ({
   comments: many(comments, { relationName: "postComments" }),
   likes: many(postLikes, { relationName: "postLikes" }),
+  notifications: many(notifications, { relationName: "postNotification" }),
   postAuthor: one(users, {
     fields: [posts.authorId],
     references: [users.id],
@@ -96,16 +103,18 @@ export const comments = createTable("comment", {
   id: uuid("id").primaryKey().defaultRandom(),
   originialCommentId: uuid("originalCommentId").references(
     (): AnyPgColumn => comments.id,
+    { onDelete: "cascade" },
   ),
   parentCommentId: uuid("parentCommentId").references(
     (): AnyPgColumn => comments.id,
+    { onDelete: "cascade" },
   ),
   originalPostId: uuid("originalPostId")
     .notNull()
-    .references(() => posts.id),
+    .references(() => posts.id, { onDelete: "cascade" }),
   authorId: varchar("authorId", { length: 256 })
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   content: varchar("content", { length: 256 }).notNull(),
   numLikes: integer("numLikes").default(0),
   numComments: integer("numComments").default(0),
@@ -119,6 +128,9 @@ export const comments = createTable("comment", {
 export const commentsRelations = relations(comments, ({ many, one }) => ({
   childComments: many(comments, { relationName: "parentComment" }),
   commentLikes: many(commentLikes, { relationName: "commentLikes" }),
+  commentNotifications: many(notifications, {
+    relationName: "commentNotification",
+  }),
   commentAuthor: one(users, {
     fields: [comments.authorId],
     references: [users.id],
@@ -139,10 +151,10 @@ export const commentsRelations = relations(comments, ({ many, one }) => ({
 export const postLikes = createTable("post_likes", {
   postId: uuid("postId")
     .notNull()
-    .references(() => posts.id),
+    .references(() => posts.id, { onDelete: "cascade" }),
   authorId: varchar("authorId", { length: 256 })
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -164,10 +176,10 @@ export const postLikesRelations = relations(postLikes, ({ one }) => ({
 export const commentLikes = createTable("comment_likes", {
   commentId: uuid("commentId")
     .notNull()
-    .references(() => comments.id),
+    .references(() => comments.id, { onDelete: "cascade" }),
   authorId: varchar("authorId", { length: 256 })
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -183,6 +195,47 @@ export const commentLikesRelations = relations(commentLikes, ({ one }) => ({
     fields: [commentLikes.authorId],
     references: [users.id],
     relationName: "commentsLikes",
+  }),
+}));
+
+export const notifications = createTable("notifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("userId", { length: 256 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  postId: uuid("postId").references(() => posts.id, { onDelete: "cascade" }),
+  commentId: uuid("commentId").references(() => comments.id, {
+    onDelete: "cascade",
+  }),
+  authorId: varchar("authorId", { length: 256 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  content: varchar("content", { length: 256 }).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+    relationName: "notificationUser",
+  }),
+  post: one(posts, {
+    fields: [notifications.postId],
+    references: [posts.id],
+    relationName: "postNotification",
+  }),
+  comment: one(comments, {
+    fields: [notifications.commentId],
+    references: [comments.id],
+    relationName: "commentNotification",
+  }),
+  author: one(users, {
+    fields: [notifications.authorId],
+    references: [users.id],
+    relationName: "notificationAuthor",
   }),
 }));
 

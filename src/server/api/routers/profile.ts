@@ -7,7 +7,7 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { followers, posts, users } from "~/server/db/schema";
+import { followers, notifications, users } from "~/server/db/schema";
 
 export const profileRouter = createTRPCRouter({
   create: publicProcedure
@@ -128,17 +128,11 @@ export const profileRouter = createTRPCRouter({
   getNotifications: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const userPosts = await ctx.db.query.posts.findMany({
-        columns: {},
-        with: {
-          comments: {
-            orderBy: (comments, { desc }) => [desc(comments.createdAt)],
-          },
-          likes: { orderBy: (likes, { desc }) => [desc(likes.createdAt)] },
-        },
-        where: eq(posts.authorId, input.id),
-        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      const userPosts = await ctx.db.query.notifications.findMany({
+        where: eq(notifications.userId, input.id),
+        orderBy: (notifications, { desc }) => [desc(notifications.createdAt)],
       });
+
       return userPosts;
     }),
 
@@ -160,6 +154,11 @@ export const profileRouter = createTRPCRouter({
           followerId: followerId,
           followingId: input.followingId,
         });
+        await ctx.db.insert(notifications).values({
+          userId: input.followingId,
+          authorId: followerId,
+          content: "followed you",
+        });
       } else {
         await ctx.db
           .delete(followers)
@@ -167,6 +166,15 @@ export const profileRouter = createTRPCRouter({
             and(
               eq(followers.followerId, followerId),
               eq(followers.followingId, input.followingId),
+            ),
+          );
+        await ctx.db
+          .delete(notifications)
+          .where(
+            and(
+              eq(notifications.userId, input.followingId),
+              eq(notifications.authorId, followerId),
+              eq(notifications.content, "followed you"),
             ),
           );
       }

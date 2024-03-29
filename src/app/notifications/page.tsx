@@ -19,38 +19,41 @@ export default async function Notifications() {
       <div className="mt-10 flex flex-col gap-5">
         {data.length > 0 ? (
           <>
-            {data.map((post) => {
-              if (post.likes.length > 0)
+            {data.map((notification) => {
+              if (notification.postId)
                 return (
-                  <>
-                    {post.likes.map((like) => (
-                      <Link key={like.postId} href={`/post/${like.postId}`}>
-                        <NotificationCard
-                          id={like.authorId}
-                          text="liked your post"
-                          createdAt={like.createdAt}
-                        />
-                      </Link>
-                    ))}
-                  </>
+                  <Link
+                    key={notification.postId}
+                    href={`/post/${notification.postId}`}
+                  >
+                    <NotificationCard
+                      id={notification.authorId}
+                      text={notification.content}
+                      createdAt={notification.createdAt}
+                    />
+                  </Link>
                 );
-
-              if (post.comments.length > 0)
+              else if (notification.commentId)
                 return (
-                  <>
-                    {post.comments.map((comment) => (
-                      <Link
-                        key={comment.id}
-                        href={`/post/${comment.originalPostId}`}
-                      >
-                        <NotificationCard
-                          id={comment.authorId}
-                          text="commented on your post"
-                          createdAt={comment.createdAt}
-                        />
-                      </Link>
-                    ))}
-                  </>
+                  <Link
+                    key={notification.commentId}
+                    href={`/comment/${notification.commentId}`}
+                  >
+                    <NotificationCard
+                      id={notification.authorId}
+                      text={notification.content}
+                      createdAt={notification.createdAt}
+                    />
+                  </Link>
+                );
+              else
+                return (
+                  <NotificationCard
+                    key={notification.id}
+                    id={notification.authorId}
+                    text={notification.content}
+                    createdAt={notification.createdAt}
+                  />
                 );
             })}
           </>

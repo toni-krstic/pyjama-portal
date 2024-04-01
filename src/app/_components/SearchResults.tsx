@@ -1,22 +1,21 @@
 "use client";
 
 import { api } from "~/trpc/react";
+import { SearchUserCard } from "./SearchUserCard";
 import { LoadingPage, LoadingSpinner } from "./Loader";
-import { PostView } from "./PostView";
-import { SharePostView } from "./SharePostView";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-export default function ProfileFeed(props: { userId: string }) {
+export const SearchResults = (props: { searchTerm: string }) => {
   const { data, status, fetchNextPage, hasNextPage } =
-    api.post.getByUserId.useInfiniteQuery(
-      { limit: 25, userId: props.userId ?? "" },
+    api.profile.search.useInfiniteQuery(
+      { limit: 25, searchTerm: props.searchTerm },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     );
 
   if (status === "loading") return <LoadingPage />;
-  if (!data) return <div>No posts</div>;
+  if (!data) return <div>No Result</div>;
 
   return (
     <>
@@ -29,7 +28,7 @@ export default function ProfileFeed(props: { userId: string }) {
           loader={
             <div className="flex items-center justify-center p-2">
               {data.pages[0]?.data.length && data.pages[0]?.data.length < 25 ? (
-                "No more posts"
+                "No more results"
               ) : (
                 <LoadingSpinner />
               )}
@@ -37,21 +36,21 @@ export default function ProfileFeed(props: { userId: string }) {
           }
           endMessage={
             <div className="flex items-center justify-center p-2">
-              <p>No more posts</p>
+              <p>
+                {data.pages[0]?.data.length === 0
+                  ? "No results"
+                  : "No more results"}
+              </p>
             </div>
           }
           className="h-fit"
         >
-          <div className="flex flex-col gap-2">
+          <div className="mt-14 flex flex-col gap-9">
             {data?.pages.map((page) => (
               <>
-                {page.data.map((fullPost) =>
-                  fullPost.isRepost ? (
-                    <SharePostView {...fullPost} key={fullPost.id} />
-                  ) : (
-                    <PostView {...fullPost} key={fullPost.id} />
-                  ),
-                )}
+                {page.data.map((user) => (
+                  <SearchUserCard key={user.id} {...user} />
+                ))}
               </>
             ))}
           </div>
@@ -59,4 +58,4 @@ export default function ProfileFeed(props: { userId: string }) {
       )}
     </>
   );
-}
+};

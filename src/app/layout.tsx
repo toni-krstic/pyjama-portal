@@ -41,7 +41,10 @@ export default function RootLayout({
           <TRPCReactProvider>
             <main className="flex h-screen justify-center">
               <LeftSidebar />
-              <div className="h-full  w-full overflow-y-scroll md:max-w-xl">
+              <div
+                id="layout"
+                className="h-full  w-full overflow-y-scroll md:max-w-xl"
+              >
                 {children}
               </div>
               <Bottombar />

@@ -68,10 +68,26 @@ export const postRouter = createTRPCRouter({
     }),
 
   getFollowing: publicProcedure
-    .input(z.object({ following: z.array(z.string()) }))
+    .input(
+      z.object({
+        following: z.array(z.string()),
+        cursor: z.string().nullish(),
+        limit: z.number().min(1).max(50).default(5),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const followingPosts = await ctx.db.query.posts.findMany({
-        where: inArray(posts.authorId, input.following),
+      const data = await ctx.db.query.posts.findMany({
+        ...withCursorPagination({
+          where: inArray(posts.authorId, input.following),
+          limit: input.limit,
+          cursors: [
+            [
+              posts.createdAt,
+              "desc",
+              input.cursor ? new Date(input.cursor) : undefined,
+            ],
+          ],
+        }),
         with: {
           postAuthor: true,
           comments: {
@@ -93,10 +109,13 @@ export const postRouter = createTRPCRouter({
           },
           likes: true,
         },
-        limit: 100,
-        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
       });
-      return followingPosts;
+      return {
+        data,
+        nextCursor: data.length
+          ? data[data.length - 1]?.createdAt.toISOString()
+          : null,
+      };
     }),
 
   getById: publicProcedure
@@ -125,8 +144,6 @@ export const postRouter = createTRPCRouter({
           },
           likes: true,
         },
-        limit: 100,
-        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
       });
       if (post.length === 0)
         throw new TRPCError({ code: "NOT_FOUND", message: "Post not found" });
@@ -134,10 +151,26 @@ export const postRouter = createTRPCRouter({
     }),
 
   getByUserId: publicProcedure
-    .input(z.object({ userId: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.query.posts.findMany({
-        where: eq(posts.authorId, input.userId),
+    .input(
+      z.object({
+        userId: z.string(),
+        cursor: z.string().nullish(),
+        limit: z.number().min(1).max(50).default(5),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const data = await ctx.db.query.posts.findMany({
+        ...withCursorPagination({
+          where: eq(posts.authorId, input.userId),
+          limit: input.limit,
+          cursors: [
+            [
+              posts.createdAt,
+              "desc",
+              input.cursor ? new Date(input.cursor) : undefined,
+            ],
+          ],
+        }),
         with: {
           postAuthor: true,
           comments: {
@@ -159,9 +192,13 @@ export const postRouter = createTRPCRouter({
           },
           likes: true,
         },
-        limit: 100,
-        orderBy: (posts, { desc }) => [desc(posts.createdAt)],
       });
+      return {
+        data,
+        nextCursor: data.length
+          ? data[data.length - 1]?.createdAt.toISOString()
+          : null,
+      };
     }),
 
   create: privateProcedure

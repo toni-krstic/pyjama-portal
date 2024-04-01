@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 import Searchbar from "../_components/Searchbar";
-import { SearchUserCard } from "../_components/SearchUserCard";
+import { SearchResults } from "../_components/SearchResults";
 
 export default async function Search({
   searchParams,
@@ -13,9 +13,6 @@ export default async function Search({
   const dbUser = await api.profile.getUserById.query({ id: user?.id ?? "" });
   if (!dbUser) return null;
   if (dbUser && dbUser.onboarding) redirect(`/onboarding?id=${dbUser.id}`);
-  const data = await api.profile.search.query({
-    searchTerm: searchParams?.q ?? "",
-  });
 
   return (
     <section className="p-8">
@@ -23,17 +20,7 @@ export default async function Search({
 
       <Searchbar />
 
-      <div className="mt-14 flex flex-col gap-9">
-        {data.length === 0 ? (
-          <p className="text-center">No Result</p>
-        ) : (
-          <>
-            {data.map((user) => (
-              <SearchUserCard key={user.id} {...user} />
-            ))}
-          </>
-        )}
-      </div>
+      <SearchResults searchTerm={searchParams?.q ?? ""} />
     </section>
   );
 }

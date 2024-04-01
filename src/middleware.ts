@@ -6,7 +6,7 @@ export default authMiddleware({
     "/",
     "/api/trpc/post.getAll",
     "/api/trpc/profile.create",
-    "/api/trpc/profile.update",
+    "/api/trpc/profile.updateProfileImage",
     "/api/trpc/profile.delete",
     "/api/trpc/profile.getUserById,post.getAll",
     "/api/webhook/clerk",

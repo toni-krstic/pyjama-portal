@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq, ilike, or } from "drizzle-orm";
+import { withCursorPagination } from "drizzle-pagination";
 import { z } from "zod";
 
 import {
@@ -112,28 +113,69 @@ export const profileRouter = createTRPCRouter({
     }),
 
   search: publicProcedure
-    .input(z.object({ searchTerm: z.string() }))
+    .input(
+      z.object({
+        searchTerm: z.string(),
+        cursor: z.string().nullish(),
+        limit: z.number().min(1).max(50).default(5),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.db.query.users.findMany({
-        where: or(
-          ilike(users.username, input.searchTerm),
-          ilike(users.firstName, input.searchTerm),
-          ilike(users.lastName, input.searchTerm),
-        ),
+      const data = await ctx.db.query.users.findMany({
+        ...withCursorPagination({
+          where: or(
+            ilike(users.username, input.searchTerm),
+            ilike(users.firstName, input.searchTerm),
+            ilike(users.lastName, input.searchTerm),
+          ),
+          limit: input.limit,
+          cursors: [
+            [
+              users.createdAt,
+              "desc",
+              input.cursor ? new Date(input.cursor) : undefined,
+            ],
+          ],
+        }),
       });
 
-      return result;
+      return {
+        data,
+        nextCursor: data.length
+          ? data[data.length - 1]?.createdAt.toISOString()
+          : null,
+      };
     }),
 
   getNotifications: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(
+      z.object({
+        id: z.string(),
+        cursor: z.string().nullish(),
+        limit: z.number().min(1).max(50).default(5),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const userPosts = await ctx.db.query.notifications.findMany({
-        where: eq(notifications.userId, input.id),
-        orderBy: (notifications, { desc }) => [desc(notifications.createdAt)],
+      const data = await ctx.db.query.notifications.findMany({
+        ...withCursorPagination({
+          where: eq(notifications.userId, input.id),
+          limit: input.limit,
+          cursors: [
+            [
+              notifications.createdAt,
+              "desc",
+              input.cursor ? new Date(input.cursor) : undefined,
+            ],
+          ],
+        }),
       });
 
-      return userPosts;
+      return {
+        data,
+        nextCursor: data.length
+          ? data[data.length - 1]?.createdAt.toISOString()
+          : null,
+      };
     }),
 
   follow: privateProcedure

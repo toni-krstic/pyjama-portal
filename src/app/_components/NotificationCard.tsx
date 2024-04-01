@@ -1,15 +1,16 @@
+"use client";
 import Image from "next/image";
-import { api } from "~/trpc/server";
+import { api } from "~/trpc/react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
-export const NotificationCard = async (props: {
+export const NotificationCard = (props: {
   id: string;
   text: string;
   createdAt: Date;
 }) => {
-  const data = await api.profile.getUserById.query({ id: props.id });
+  const { data } = api.profile.getUserById.useQuery({ id: props.id });
   return (
     <article className="flex flex-col items-center gap-1 rounded-md px-7 py-4 sm:flex-row">
       <Image

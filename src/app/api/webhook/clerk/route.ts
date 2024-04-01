@@ -25,6 +25,7 @@ type Event = {
 };
 
 export const POST = async (request: Request) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const payload: WebhookEvent = await request.json();
   const header = headers();
 

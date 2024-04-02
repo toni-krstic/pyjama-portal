@@ -12,7 +12,7 @@ const rateLimitMap: RateLimitMap = new Map();
 export default authMiddleware({
   beforeAuth: (req) => {
     const ip = req.headers.get("x-forwarded-for") ?? req.ip;
-    const limit = 50; // Limiting requests to 50 per minute per IP
+    const limit = 75; // Limiting requests to 75 per minute per IP
     const windowMs = 60 * 1000; // 1 minute
 
     if (!rateLimitMap.has(ip)) {

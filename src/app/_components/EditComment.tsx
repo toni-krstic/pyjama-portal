@@ -54,7 +54,7 @@ export const EditComment = (props: { id: string; isModal: boolean }) => {
   if (!data) return null;
 
   return (
-    <article className="flex w-full flex-col rounded-xl px-7">
+    <article className="flex max-w-xl flex-col rounded-xl px-7">
       <div className="flex items-start justify-between">
         <div className="flex w-full flex-1 flex-row gap-4">
           <div className="flex flex-col items-center">

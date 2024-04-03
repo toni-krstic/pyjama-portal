@@ -30,7 +30,7 @@ export default async function ProfilePage({ params }: Props) {
 
   if (!data ?? !user) return null;
   return (
-    <section className="px-8">
+    <section className="pb-20 sm:px-8 sm:pb-0">
       <div className="relative h-48 bg-slate-600">
         <Image
           src={data.profileImage ?? ""}

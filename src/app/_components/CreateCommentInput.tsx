@@ -69,10 +69,9 @@ export const CreateCommentInput = (props: {
             className="rounded-full object-cover"
           />
         </label>
-        <input
-          type="text"
+        <textarea
           placeholder="Comment..."
-          className="bg-transparent outline-none"
+          className="h-fit w-full translate-y-3 bg-transparent outline-none"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />

@@ -39,7 +39,7 @@ export function CreatePost() {
 
   return (
     <>
-      <div className="flex w-full gap-3 rounded-lg bg-slate-800 p-4">
+      <div className="flex w-full items-center  justify-center gap-3 rounded-lg bg-slate-800 p-4">
         <UserButton
           appearance={{
             elements: {
@@ -55,12 +55,11 @@ export function CreatePost() {
           }}
           className="flex w-full gap-2"
         >
-          <input
-            type="text"
+          <textarea
             placeholder="What is happening?!"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full grow bg-transparent outline-none"
+            className="h-fit w-full translate-y-3 bg-transparent align-text-bottom outline-none"
             disabled={createPost.isLoading}
           />
           <button

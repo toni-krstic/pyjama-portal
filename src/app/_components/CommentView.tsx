@@ -6,7 +6,7 @@ import classNames from "classnames";
 
 import type { RouterOutputs } from "~/trpc/shared";
 import Link from "next/link";
-import { FaRegComment, FaRegHeart, FaRegShareSquare } from "react-icons/fa";
+import { FaRegComment, FaRegHeart } from "react-icons/fa";
 
 import { api } from "~/trpc/react";
 import { useUser } from "@clerk/nextjs";

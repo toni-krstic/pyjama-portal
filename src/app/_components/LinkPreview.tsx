@@ -7,7 +7,7 @@ export default function LinkPreview(params: { url: string }) {
     link: params.url,
   });
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner size={30} />;
   if (!data) {
     return <p>Failed to fetch link preview.</p>;
   }

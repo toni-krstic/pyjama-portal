@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { api } from "~/trpc/react";
+import { LoadingSpinner } from "./Loader";
 
 export default function LinkPreview(params: { url: string }) {
-  const { data } = api.post.getLinkData.useQuery({ link: params.url });
+  const { data, isLoading } = api.post.getLinkData.useQuery({
+    link: params.url,
+  });
 
+  if (isLoading) return <LoadingSpinner />;
   if (!data) {
     return <p>Failed to fetch link preview.</p>;
   }
